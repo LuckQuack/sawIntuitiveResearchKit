@@ -68,8 +68,6 @@ namespace dvrk {
         // system topics (on/off)
         void add_topics_system(const std::string & _system_name);
 
-        // IO timing (to be deprecated)
-        void add_topics_IO_stats(void);
         // add topics for all IOs if requested
         void add_topics_IO(const double _publish_period_in_seconds,
                            const bool _read_write);

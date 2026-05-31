@@ -68,9 +68,6 @@ dvrk::system_ROS::system_ROS(const std::string & name,
     // system
     add_topics_system(m_system->GetName());
 
-    // IO topics
-    add_topics_IO_stats();
-
     // arm topics
     for (const auto & iter : m_system->m_arm_proxies) {
         const std::string & name = iter.first;
@@ -146,9 +143,6 @@ void dvrk::system_ROS::bridge_interface_provided_arm(const std::string & _arm_na
     // bridged (e.g. subscribers and events)
     const std::string _required_interface_name = _arm_name + "_using_" + _interface_name;
 
-    subscribers_bridge().AddSubscriberToCommandWrite<prmPositionCartesianSet, CISST_RAL_MSG(geometry_msgs, PoseStamped)>
-        (_required_interface_name, "set_base_frame",
-         _arm_name + "/set_base_frame");
     subscribers_bridge().AddSubscriberToCommandWrite<double, CISST_RAL_MSG(std_msgs, Float64)>
         (_required_interface_name, "trajectory_j/set_ratio",
          _arm_name + "/trajectory_j/set_ratio");
@@ -424,12 +418,14 @@ void dvrk::system_ROS::add_topics_endoscope_focus(void)
 }
 
 
-void dvrk::system_ROS::add_topics_IO_stats(void)
+void dvrk::system_ROS::add_topics_IO(const double _publish_period_in_seconds,
+                                     const bool _read_write)
 {
-    std::cerr << CMN_LOG_DETAILS << " should be in add_topics IO " << std::endl;
     CMN_LOG_CLASS_INIT_VERBOSE << "add_topics_IO called" << std::endl;
+    mtsManagerLocal * component_manager = mtsManagerLocal::GetInstance();
     for (const auto & iter : m_system->m_IO_proxies) {
         const std::string & name = iter.first;
+        // IO period statistics
         const std::string & interface_name = "IO_" + name;
         const std::string ros_namespace = "stats/IO_" + name;
         m_pub_bridge->AddPublisherFromCommandRead<mtsIntervalStatistics, CISST_RAL_MSG(cisst_msgs, IntervalStatistics)>
@@ -441,20 +437,9 @@ void dvrk::system_ROS::add_topics_IO_stats(void)
         m_pub_bridge->AddPublisherFromCommandRead<mtsIntervalStatistics, CISST_RAL_MSG(cisst_msgs, IntervalStatistics)>
             (interface_name, "period_statistics_write",
              ros_namespace + "period_statistics_write");
-
         m_connections.Add(m_pub_bridge->GetName(), interface_name,
                           name, "Configuration");
-    }
-}
-
-
-void dvrk::system_ROS::add_topics_IO(const double _publish_period_in_seconds,
-                                     const bool _read_write)
-{
-    CMN_LOG_CLASS_INIT_VERBOSE << "add_topics_IO called" << std::endl;
-    mtsManagerLocal * component_manager = mtsManagerLocal::GetInstance();
-    for (const auto & iter : m_system->m_IO_proxies) {
-        const std::string & name = iter.first;
+        // full IO bridge
         const std::string bridge_name = "IO_bridge_" + name;
         if (!component_manager->GetComponent(bridge_name)) {
             // IO bridge uses an object factory based on list of interfaces provided by the IO component
