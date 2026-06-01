@@ -1,0 +1,153 @@
+/* -*- Mode: Javascript; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+{
+    "$id": "dvrk-system.schema.json",
+    "$version": "1",
+    "component_manager": {
+        "components":
+        [
+            {
+                "shared-library": "sawHaplyService",
+                "class-name": "mtsHaply",
+                "constructor-arg": {
+                    "Name": "Haply"
+                },
+                "configure-parameter": "sawHaplyService-JHU-Imerse-0699-069E.json"
+            }
+        ]
+    }
+    ,
+    "arms":
+    [
+        {
+            "name": "MTML",
+            "type": "MTM_GENERIC",
+            "component": "Haply",
+            "interface": "MTML"
+        }
+        ,
+        {
+            "name": "MTMR",
+            "type": "MTM_GENERIC",
+            "component": "Haply",
+            "interface": "MTMR"
+        }
+        ,
+        {
+            "name": "SUJ",
+            "type": "SUJ_Classic",
+            "simulation": "KINEMATIC",
+            "arm_file": "arm/suj-simulated.json"
+        }
+        ,
+        {
+            "name": "PSM1",
+            "type": "PSM",
+            "simulation": "KINEMATIC",
+            "arm_file": "arm/PSM_KIN_SIMULATED_LARGE_NEEDLE_DRIVER_400006.json",
+            "base_frame": {
+                "component": "SUJ",
+                "interface": "PSM1"
+            }
+        }
+        ,
+        {
+            "name": "PSM2",
+            "type": "PSM",
+            "simulation": "KINEMATIC",
+            "arm_file": "arm/PSM_KIN_SIMULATED_LARGE_NEEDLE_DRIVER_400006.json",
+            "base_frame": {
+                "component": "SUJ",
+                "interface": "PSM2"
+            }
+        }
+        ,
+        {
+            "name": "PSM3",
+            "type": "PSM",
+            "simulation": "KINEMATIC",
+            "arm_file": "arm/PSM_KIN_SIMULATED_LARGE_NEEDLE_DRIVER_400006.json",
+            "base_frame": {
+                "component": "SUJ",
+                "interface": "PSM3"
+            }
+        }
+        ,
+        {
+            "name": "ECM",
+            "type": "ECM",
+            "simulation": "KINEMATIC",
+            "arm_file": "arm/ECM_KIN_SIMULATED_STRAIGHT.json",
+            "base_frame": {
+                "component": "SUJ",
+                "interface": "ECM"
+            }
+        }
+    ]
+    ,
+    "consoles":
+    [
+        {
+            "name": "console",
+            "input_type": "COMPONENTS",
+            "operator_present" :
+            {
+                "component": "Haply",
+                "interface": "MTMR/C"
+            }
+            ,
+            "clutch" :
+            {
+                "component": "Haply",
+                "interface": "MTML/C"
+            }
+            ,
+            "camera" :
+            {
+                "component": "Haply",
+                "interface": "MTMR/Home"
+            }
+            ,
+            "teleop_PSMs":
+            [
+                {
+                    "MTM": "MTMR",
+                    "PSM": "PSM1",
+                    "configure_parameter": {
+                        "start_gripper_threshold": 0.0,
+                        "scale": 0.4,
+                        "align_MTM": false
+                    }
+                }
+                ,
+                {
+                    "MTM": "MTML",
+                    "PSM": "PSM2",
+                    "configure_parameter": {
+                        "start_gripper_threshold": 0.0,
+                        "scale": 0.4,
+                        "align_MTM": false
+                    }
+                }
+                ,
+                {
+                    "MTM": "MTML",
+                    "PSM": "PSM3",
+                    "configure_parameter": {
+                        "start_gripper_threshold": 0.0,
+                        "scale": 0.4,
+                        "align_MTM": false
+                    }
+                }
+            ]
+            ,
+            "teleop_ECMs":
+            [
+                {
+                    "MTML": "MTML",
+                    "MTMR": "MTMR",
+                    "ECM": "ECM"
+                }
+            ]
+        }
+    ]
+}

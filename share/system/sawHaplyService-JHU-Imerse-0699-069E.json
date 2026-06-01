@@ -1,0 +1,73 @@
+{
+    "uri": "ws://localhost:10001",
+    "devices": [
+        {
+            "name": "MTML",
+            "base_serial": "069E",
+            "stylus_serial": "1606",
+            "base_frame": {
+                "reference_frame": "user",
+                "transform": [
+                    [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.2
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.5
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        },
+        {
+            "name": "MTMR",
+            "base_serial": "0699",
+            "stylus_serial": "1605",
+            "base_frame": {
+                "reference_frame": "user",
+                "transform": [
+                    [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        -0.2
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.5
+                    ],
+                    [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                ]
+            }
+        }
+    ]
+}
