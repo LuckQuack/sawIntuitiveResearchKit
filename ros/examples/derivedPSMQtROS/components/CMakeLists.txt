@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2011-2025 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2011-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -61,61 +61,54 @@ set (
   cisstNumerical
   cisstQt)
 
-find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
-if (cisst_FOUND_AS_REQUIRED)
-  # load cisst configuration
-  include (${CISST_USE_FILE})
 
-  # set paths
-  cisst_set_output_path ()
 
-  # sawIntuitiveResearchKit has been compiled within cisst, we should
-  # find it automatically
-  find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
+# set paths
+cisst_set_output_path ()
 
-  if (sawIntuitiveResearchKit_FOUND)
+# sawIntuitiveResearchKit has been compiled within cisst, we should
+# find it automatically
+find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
 
-    # for Qt widgets
-    set (CMAKE_AUTOMOC ON)
+if (sawIntuitiveResearchKit_FOUND)
 
-    set (saw_intuitive_research_kit_example_psm_derived_INCLUDE_DIR
-      "${saw_intuitive_research_kit_example_psm_derived_SOURCE_DIR}/include")
+  # for Qt widgets
+  set (CMAKE_AUTOMOC ON)
 
-    include_directories (
-      ${saw_intuitive_research_kit_example_psm_derived_INCLUDE_DIR}
-      ${CMAKE_BINARY_DIR}
-      ${CMAKE_CURRENT_BINARY_DIR}
-      ${sawIntuitiveResearchKit_INCLUDE_DIR}
-      ${catkin_INCLUDE_DIRS})
+  set (saw_intuitive_research_kit_example_psm_derived_INCLUDE_DIR
+    "${saw_intuitive_research_kit_example_psm_derived_SOURCE_DIR}/include")
 
-    link_directories (
-      ${sawIntuitiveResearchKit_LIBRARY_DIR})
+  include_directories (
+    ${saw_intuitive_research_kit_example_psm_derived_INCLUDE_DIR}
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${sawIntuitiveResearchKit_INCLUDE_DIR}
+    ${catkin_INCLUDE_DIRS})
 
-    add_library (sawIntuitiveResearchKitDerivedPSM
-      "include/mtsDerivedPSM.h"
-      "include/mtsDerivedPSMQtWidget.h"
-      "include/mtsDerivedPSMROSBridge.h"
-      "code/mtsDerivedPSM.cpp"
-      "code/mtsDerivedPSMQtWidget.cpp"
-      "code/mtsDerivedPSMROSBridge.cpp")
+  link_directories (
+    ${sawIntuitiveResearchKit_LIBRARY_DIR})
 
-    cisst_target_link_libraries (sawIntuitiveResearchKitDerivedPSM
-      ${REQUIRED_CISST_LIBRARIES})
+  add_library (sawIntuitiveResearchKitDerivedPSM
+    "include/mtsDerivedPSM.h"
+    "include/mtsDerivedPSMQtWidget.h"
+    "include/mtsDerivedPSMROSBridge.h"
+    "code/mtsDerivedPSM.cpp"
+    "code/mtsDerivedPSMQtWidget.cpp"
+    "code/mtsDerivedPSMROSBridge.cpp")
 
-    # link against non cisst libraries and cisst components
-    target_link_libraries (sawIntuitiveResearchKitDerivedPSM
-      ${sawIntuitiveResearchKit_LIBRARIES}
-      ${catkin_LIBRARIES})
+  target_link_libraries (sawIntuitiveResearchKitDerivedPSM
+    ${cisst_LIBRARIES}
+    ${sawIntuitiveResearchKit_LIBRARIES}
+    ${catkin_LIBRARIES})
 
-    if (ROS_VERSION EQUAL 2)
-      ament_target_dependencies (
-        sawIntuitiveResearchKitDerivedPSM
-        ${ROS2_depends}
-        )
-      ament_package ()
-    endif ()
+  if (ROS_VERSION EQUAL 2)
+    ament_target_dependencies (
+      sawIntuitiveResearchKitDerivedPSM
+      ${ROS2_depends}
+      )
+    ament_package ()
+  endif ()
 
-  endif (sawIntuitiveResearchKit_FOUND)
-
-endif (cisst_FOUND_AS_REQUIRED)
+endif (sawIntuitiveResearchKit_FOUND)

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2011-2024 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2011-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -21,50 +21,43 @@ set (REQUIRED_CISST_LIBRARIES
   cisstRobot
   cisstNumerical)
 
-find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
-if (cisst_FOUND)
-  # load cisst configuration
-  include (${CISST_USE_FILE})
 
-  # catkin/ROS paths
-  cisst_set_output_path ()
 
-  # sawIntuitiveResearchKit has been compiled within cisst, we should
-  # find it automatically
-  find_package (sawTextToSpeech        1.4.1 REQUIRED)
-  find_package (sawRobotIO1394         2.4.0 REQUIRED)
-  find_package (sawControllers         2.3.0 REQUIRED)
-  find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
+# catkin/ROS paths
+cisst_set_output_path ()
 
-  if (sawIntuitiveResearchKit_FOUND)
+# sawIntuitiveResearchKit has been compiled within cisst, we should
+# find it automatically
+find_package (sawTextToSpeech        1.4.1 REQUIRED)
+find_package (sawRobotIO1394         2.4.0 REQUIRED)
+find_package (sawControllers         2.3.0 REQUIRED)
+find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
 
-    include_directories (
-      ${CMAKE_BINARY_DIR}
-      ${sawIntuitiveResearchKit_INCLUDE_DIR})
+if (sawIntuitiveResearchKit_FOUND)
 
-    link_directories (
-      ${sawIntuitiveResearchKit_LIBRARY_DIR}
-      ${sawTextToSpeech_LIBRARY_DIR}
-      ${sawRobotIO1394_LIBRARY_DIR}
-      ${sawControllers_LIBRARY_DIR})
+  include_directories (
+    ${CMAKE_BINARY_DIR}
+    ${sawIntuitiveResearchKit_INCLUDE_DIR})
 
-    set (sawIntuitiveResearchKitDerivedTeleOperationPSM_INCLUDE_DIR
-         "${sawIntuitiveResearchKitDerivedTeleOperationPSM_SOURCE_DIR}/include")
+  link_directories (
+    ${sawIntuitiveResearchKit_LIBRARY_DIR}
+    ${sawTextToSpeech_LIBRARY_DIR}
+    ${sawRobotIO1394_LIBRARY_DIR}
+    ${sawControllers_LIBRARY_DIR})
 
-    include_directories (${sawIntuitiveResearchKitDerivedTeleOperationPSM_INCLUDE_DIR})
+  set (sawIntuitiveResearchKitDerivedTeleOperationPSM_INCLUDE_DIR
+       "${sawIntuitiveResearchKitDerivedTeleOperationPSM_SOURCE_DIR}/include")
 
-    add_library (sawIntuitiveResearchKitDerivedTeleOperationPSM
-                 "include/mtsDerivedTeleOperationPSM.h"
-                 "code/mtsDerivedTeleOperationPSM.cpp")
+  include_directories (${sawIntuitiveResearchKitDerivedTeleOperationPSM_INCLUDE_DIR})
 
-    cisst_target_link_libraries (sawIntuitiveResearchKitDerivedTeleOperationPSM
-                                 ${REQUIRED_CISST_LIBRARIES})
+  add_library (sawIntuitiveResearchKitDerivedTeleOperationPSM
+               "include/mtsDerivedTeleOperationPSM.h"
+               "code/mtsDerivedTeleOperationPSM.cpp")
 
-    # link against non cisst libraries and cisst components
-    target_link_libraries (sawIntuitiveResearchKitDerivedTeleOperationPSM
-                           ${sawIntuitiveResearchKit_LIBRARIES})
+  target_link_libraries (sawIntuitiveResearchKitDerivedTeleOperationPSM PUBLIC
+                         ${cisst_LIBRARIES}
+                         ${sawIntuitiveResearchKit_LIBRARIES})
 
-  endif (sawIntuitiveResearchKit_FOUND)
-
-endif (cisst_FOUND)
+endif (sawIntuitiveResearchKit_FOUND)

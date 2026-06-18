@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2025 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2025-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -59,68 +59,64 @@ set (
   cisstRobot
   cisstNumerical)
 
-find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES})
-
-if (cisst_FOUND_AS_REQUIRED)
-  # load cisst configuration
-  include (${CISST_USE_FILE})
-
-  # set paths
-  cisst_set_output_path ()
-
-  # sawIntuitiveResearchKit has been compiled within cisst, we should
-  # find it automatically
-  find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
-
-  if (sawIntuitiveResearchKit_FOUND)
-
-    set (saw_intuitive_research_kit_example_bilateral_teleop_INCLUDE_DIR
-      "${saw_intuitive_research_kit_example_bilateral_teleop_SOURCE_DIR}/include")
-
-    include_directories (
-      ${saw_intuitive_research_kit_example_bilateral_teleop_INCLUDE_DIR}
-      ${CMAKE_BINARY_DIR}
-      ${CMAKE_CURRENT_BINARY_DIR}
-      ${sawIntuitiveResearchKit_INCLUDE_DIR})
-
-    link_directories (
-      ${sawIntuitiveResearchKit_LIBRARY_DIR})
+find_package (cisst REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 
-    set (BILATERAL_SOURCES
-         "include/mtsBilateralTeleOperationPSM.h"
-         "include/sawIntuitiveResearchKitBilateralTeleopExport.h"
-         "code/mtsBilateralTeleOperationPSM.cpp")
 
-    if (ROS_VERSION)
-      set (BILATERAL_SOURCES ${BILATERAL_SOURCES}
-           "include/mtsBilateralTeleOperationPSMROSBridge.h"
-           "code/mtsBilateralTeleOperationPSMROSBridge.cpp")
-    endif ()
+# set paths
+cisst_set_output_path ()
 
-    add_library (sawIntuitiveResearchKitBilateralTeleop
-                 ${BILATERAL_SOURCES})
+# sawIntuitiveResearchKit has been compiled within cisst, we should
+# find it automatically
+find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
 
-    cisst_target_link_libraries (sawIntuitiveResearchKitBilateralTeleop
-                                 ${REQUIRED_CISST_LIBRARIES})
+if (sawIntuitiveResearchKit_FOUND)
 
-    # link against non cisst libraries and cisst components
-    target_link_libraries (sawIntuitiveResearchKitBilateralTeleop
-                           ${sawIntuitiveResearchKit_LIBRARIES})
+  set (saw_intuitive_research_kit_example_bilateral_teleop_INCLUDE_DIR
+    "${saw_intuitive_research_kit_example_bilateral_teleop_SOURCE_DIR}/include")
 
-    if (ROS_VERSION EQUAL 1)
-      target_link_libraries (sawIntuitiveResearchKitBilateralTeleop
-                             ${catkin_LIBRARIES})
-    endif ()
+  include_directories (
+    ${saw_intuitive_research_kit_example_bilateral_teleop_INCLUDE_DIR}
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${sawIntuitiveResearchKit_INCLUDE_DIR})
 
-    if (ROS_VERSION EQUAL 2)
-      ament_target_dependencies (
-        sawIntuitiveResearchKitBilateralTeleop
-        ${ROS2_depends}
-        )
-      ament_package ()
-    endif ()
+  link_directories (
+    ${sawIntuitiveResearchKit_LIBRARY_DIR})
 
-  endif (sawIntuitiveResearchKit_FOUND)
 
-endif (cisst_FOUND_AS_REQUIRED)
+  set (BILATERAL_SOURCES
+       "include/mtsBilateralTeleOperationPSM.h"
+       "include/sawIntuitiveResearchKitBilateralTeleopExport.h"
+       "code/mtsBilateralTeleOperationPSM.cpp")
+
+  if (ROS_VERSION)
+    set (BILATERAL_SOURCES ${BILATERAL_SOURCES}
+         "include/mtsBilateralTeleOperationPSMROSBridge.h"
+         "code/mtsBilateralTeleOperationPSMROSBridge.cpp")
+  endif ()
+
+  add_library (sawIntuitiveResearchKitBilateralTeleop
+               ${BILATERAL_SOURCES})
+
+  set (sawIntuitiveResearchKitBilateralTeleop_LINK_LIBRARIES
+       ${cisst_LIBRARIES}
+       ${sawIntuitiveResearchKit_LIBRARIES})
+
+  if (ROS_VERSION EQUAL 1)
+    list (APPEND sawIntuitiveResearchKitBilateralTeleop_LINK_LIBRARIES
+          ${catkin_LIBRARIES})
+  endif ()
+
+  target_link_libraries (sawIntuitiveResearchKitBilateralTeleop
+                         ${sawIntuitiveResearchKitBilateralTeleop_LINK_LIBRARIES})
+
+  if (ROS_VERSION EQUAL 2)
+    ament_target_dependencies (
+      sawIntuitiveResearchKitBilateralTeleop
+      ${ROS2_depends}
+      )
+    ament_package ()
+  endif ()
+
+endif (sawIntuitiveResearchKit_FOUND)

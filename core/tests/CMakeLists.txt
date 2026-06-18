@@ -1,7 +1,7 @@
 #
 # CMakeLists for sawIntuitiveResearchKit tests
 #
-# (C) Copyright 2019-2023 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2019-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -26,41 +26,34 @@ set (REQUIRED_CISST_LIBRARIES
   cisstTestsDriver)
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst REQUIRED ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
-if (cisst_FOUND_AS_REQUIRED)
 
-  # load cisst configuration
-  include (${CISST_USE_FILE})
 
-  # catkin/ROS paths
-  cisst_is_catkin_build (sawIntuitiveResearchKitTests_IS_CATKIN_BUILT)
-  if (sawIntuitiveResearchKitTests_IS_CATKIN_BUILT)
-    set (EXECUTABLE_OUTPUT_PATH "${CATKIN_DEVEL_PREFIX}/bin")
-  endif ()
+# catkin/ROS paths
+cisst_is_catkin_build (sawIntuitiveResearchKitTests_IS_CATKIN_BUILT)
+if (sawIntuitiveResearchKitTests_IS_CATKIN_BUILT)
+  set (EXECUTABLE_OUTPUT_PATH "${CATKIN_DEVEL_PREFIX}/bin")
+endif ()
 
-  # sawIntuitiveResearchKit has been compiled within cisst, we should find it automatically
-  find_package (sawIntuitiveResearchKit REQUIRED)
+# sawIntuitiveResearchKit has been compiled within cisst, we should find it automatically
+find_package (sawIntuitiveResearchKit REQUIRED)
 
-  if (sawIntuitiveResearchKit_FOUND)
+if (sawIntuitiveResearchKit_FOUND)
 
-    # sawIntuitiveResearchKit configuration
-    include_directories (${sawIntuitiveResearchKit_INCLUDE_DIR})
-    link_directories (${sawIntuitiveResearchKit_LIBRARY_DIR})
+  # sawIntuitiveResearchKit configuration
+  include_directories (${sawIntuitiveResearchKit_INCLUDE_DIR})
+  link_directories (${sawIntuitiveResearchKit_LIBRARY_DIR})
 
-    add_executable (sawIntuitiveResearchKitTests
-      robManipulatorTest.cpp
-      robManipulatorTest.h)
+  add_executable (sawIntuitiveResearchKitTests
+    robManipulatorTest.cpp
+    robManipulatorTest.h)
 
-    set_property (TARGET sawIntuitiveResearchKitTests PROPERTY FOLDER "sawIntuitiveResearchKit")
+  set_property (TARGET sawIntuitiveResearchKitTests PROPERTY FOLDER "sawIntuitiveResearchKit")
 
-    # link against non cisst libraries and cisst components
-    target_link_libraries (sawIntuitiveResearchKitTests
-                           ${sawIntuitiveResearchKit_LIBRARIES})
+  # link against non cisst libraries and cisst components
+  target_link_libraries (sawIntuitiveResearchKitTests PRIVATE
+                         ${sawIntuitiveResearchKit_LIBRARIES}
+                         ${cisst_LIBRARIES})
 
-    # link against cisst libraries (and dependencies)
-    cisst_target_link_libraries (sawIntuitiveResearchKitTests ${REQUIRED_CISST_LIBRARIES})
-
-  endif (sawIntuitiveResearchKit_FOUND)
-
-endif (cisst_FOUND_AS_REQUIRED)
+endif (sawIntuitiveResearchKit_FOUND)

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2015-2025 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2015-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -66,85 +66,79 @@ set (
   cisstQt
   )
 
-find_package (cisst 1.4.0 REQUIRED ${REQUIRED_CISST_LIBRARIES})
-
-if (cisst_FOUND_AS_REQUIRED)
-
-  # load cisst configuration
-  include (${CISST_USE_FILE})
-
-  # set paths
-  cisst_set_output_path ()
-
-  # sawRobotIO1394 has been compiled within cisst, we should find it automatically
-  find_package (sawRobotIO1394          2.4.0 REQUIRED)
-  find_package (sawControllers          2.3.0 REQUIRED)
-  find_package (sawIntuitiveResearchKit 2.4.0 REQUIRED)
-
-  include_directories (
-    ${dvrk_robot_SOURCE_DIR}/include
-    ${CATKIN_DEVEL_PREFIX}/include
-    ${sawRobotIO1394_INCLUDE_DIR}
-    ${sawControllers_INCLUDE_DIR}
-    ${sawIntuitiveResearchKit_INCLUDE_DIR}
-    )
-
-  link_directories (
-    ${sawRobotIO1394_LIBRARY_DIR}
-    ${sawControllers_LIBRARY_DIR}
-    ${sawIntuitiveResearchKit_LIBRARY_DIR}
-    )
-
-  add_executable (dvrk_pid src/dvrk_pid.cpp)
-  target_link_libraries (
-    dvrk_pid
-    ${sawRobotIO1394_LIBRARIES}
-    ${sawControllers_LIBRARIES}
-    ${catkin_LIBRARIES}
-    )
-  cisst_target_link_libraries (dvrk_pid ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 
-  add_library (dvrk_utilities
-    include/dvrk_utilities/system_ROS.h
-    src/system_ROS.cpp)
 
-  target_link_libraries (
+# set paths
+cisst_set_output_path ()
+
+# sawRobotIO1394 has been compiled within cisst, we should find it automatically
+find_package (sawRobotIO1394          2.4.0 REQUIRED)
+find_package (sawControllers          2.3.0 REQUIRED)
+find_package (sawIntuitiveResearchKit 2.4.0 REQUIRED)
+
+include_directories (
+  ${dvrk_robot_SOURCE_DIR}/include
+  ${CATKIN_DEVEL_PREFIX}/include
+  ${sawRobotIO1394_INCLUDE_DIR}
+  ${sawControllers_INCLUDE_DIR}
+  ${sawIntuitiveResearchKit_INCLUDE_DIR}
+  )
+
+link_directories (
+  ${sawRobotIO1394_LIBRARY_DIR}
+  ${sawControllers_LIBRARY_DIR}
+  ${sawIntuitiveResearchKit_LIBRARY_DIR}
+  )
+
+add_executable (dvrk_pid src/dvrk_pid.cpp)
+target_link_libraries (
+  dvrk_pid
+  ${sawRobotIO1394_LIBRARIES}
+  ${sawControllers_LIBRARIES}
+  ${catkin_LIBRARIES}
+  )
+target_link_libraries (dvrk_pid ${cisst_LIBRARIES})
+
+
+add_library (dvrk_utilities
+  include/dvrk_utilities/system_ROS.h
+  src/system_ROS.cpp)
+
+target_link_libraries (
+  dvrk_utilities
+  ${sawRobotIO1394_LIBRARIES}
+  ${sawControllers_LIBRARIES}
+  ${sawIntuitiveResearchKit_LIBRARIES}
+  ${catkin_LIBRARIES}
+  )
+target_link_libraries (dvrk_utilities ${cisst_LIBRARIES})
+
+add_executable (dvrk_system src/dvrk_system.cpp)
+target_link_libraries (
+  dvrk_system
+  ${sawRobotIO1394_LIBRARIES}
+  ${sawControllers_LIBRARIES}
+  ${sawIntuitiveResearchKit_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${cisst_LIBRARIES}
+  dvrk_utilities)
+
+install (TARGETS dvrk_utilities dvrk_pid dvrk_system
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  INCLUDES DESTINATION include)
+
+if (ROS_VERSION EQUAL 2)
+  ament_target_dependencies (
     dvrk_utilities
-    ${sawRobotIO1394_LIBRARIES}
-    ${sawControllers_LIBRARIES}
-    ${sawIntuitiveResearchKit_LIBRARIES}
-    ${catkin_LIBRARIES}
+    ${ROS2_depends}
     )
-  cisst_target_link_libraries (dvrk_utilities ${REQUIRED_CISST_LIBRARIES})
-
-  add_executable (dvrk_system src/dvrk_system.cpp)
-  target_link_libraries (
-    dvrk_system
-    ${sawRobotIO1394_LIBRARIES}
-    ${sawControllers_LIBRARIES}
-    ${sawIntuitiveResearchKit_LIBRARIES}
-    ${catkin_LIBRARIES}
+  ament_target_dependencies (
+    dvrk_pid
+    ${ROS2_depends}
     )
-  cisst_target_link_libraries (dvrk_system ${REQUIRED_CISST_LIBRARIES})
-  target_link_libraries (dvrk_system dvrk_utilities)
-
-  install (TARGETS dvrk_utilities dvrk_pid dvrk_system
-    LIBRARY DESTINATION lib/${PROJECT_NAME}
-    RUNTIME DESTINATION lib/${PROJECT_NAME}
-    LIBRARY DESTINATION lib
-    INCLUDES DESTINATION include)
-
-  if (ROS_VERSION EQUAL 2)
-    ament_target_dependencies (
-      dvrk_utilities
-      ${ROS2_depends}
-      )
-    ament_target_dependencies (
-      dvrk_pid
-      ${ROS2_depends}
-      )
-    ament_package ()
-  endif ()
-
-endif (cisst_FOUND_AS_REQUIRED)
+  ament_package ()
+endif ()

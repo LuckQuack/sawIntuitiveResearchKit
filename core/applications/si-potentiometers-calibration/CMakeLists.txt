@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2022-2025 Johns Hopkins University (JHU), All Rights Reserved.
+# (C) Copyright 2022-2026 Johns Hopkins University (JHU), All Rights Reserved.
 #
 # --- begin cisst license - do not edit ---
 #
@@ -21,46 +21,39 @@ set (REQUIRED_CISST_LIBRARIES
   cisstParameterTypes)
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst 1.4.0 REQUIRED ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
-if (cisst_FOUND_AS_REQUIRED)
 
-  # load cisst configuration
-  include (${CISST_USE_FILE})
 
-  # catkin/ROS paths
-  cisst_is_catkin_build (sawIntuitiveResearchKitSiPotentiometersCalibration_IS_CATKIN_BUILT)
-  if (sawIntuitiveResearchKitSiPotentiometersCalibration_IS_CATKIN_BUILT)
-    set (EXECUTABLE_OUTPUT_PATH "${CATKIN_DEVEL_PREFIX}/bin")
-  endif ()
+# catkin/ROS paths
+cisst_is_catkin_build (sawIntuitiveResearchKitSiPotentiometersCalibration_IS_CATKIN_BUILT)
+if (sawIntuitiveResearchKitSiPotentiometersCalibration_IS_CATKIN_BUILT)
+  set (EXECUTABLE_OUTPUT_PATH "${CATKIN_DEVEL_PREFIX}/bin")
+endif ()
 
-  # saw components have been compiled within cisst, we should find them automatically
-  find_package (sawRobotIO1394 2.4.0 REQUIRED)
+# saw components have been compiled within cisst, we should find them automatically
+find_package (sawRobotIO1394 2.4.0 REQUIRED)
 
-  if (sawRobotIO1394_FOUND)
+if (sawRobotIO1394_FOUND)
 
-    # saw components configuration
-    include_directories (${sawRobotIO1394_INCLUDE_DIR})
-    link_directories (${sawRobotIO1394_LIBRARY_DIR})
+  # saw components configuration
+  include_directories (${sawRobotIO1394_INCLUDE_DIR})
+  link_directories (${sawRobotIO1394_LIBRARY_DIR})
 
-    # main program used to calibrate the MTM gripper
-    add_executable (sawIntuitiveResearchKitSiPotentiometersCalibration SiPotentiometersCalibration.cpp)
-    set_property (TARGET sawIntuitiveResearchKitSiPotentiometersCalibration PROPERTY FOLDER "sawIntuitiveResearchKit")
+  # main program used to calibrate the MTM gripper
+  add_executable (sawIntuitiveResearchKitSiPotentiometersCalibration SiPotentiometersCalibration.cpp)
+  set_property (TARGET sawIntuitiveResearchKitSiPotentiometersCalibration PROPERTY FOLDER "sawIntuitiveResearchKit")
 
-    # link against non cisst libraries and cisst components
-    target_link_libraries (sawIntuitiveResearchKitSiPotentiometersCalibration
-                           ${sawRobotIO1394_LIBRARIES})
+  # link against non cisst libraries and cisst components
+  target_link_libraries (sawIntuitiveResearchKitSiPotentiometersCalibration PRIVATE
+                         ${sawRobotIO1394_LIBRARIES}
+                         ${cisst_LIBRARIES})
 
-    # link against cisst libraries (and dependencies)
-    cisst_target_link_libraries (sawIntuitiveResearchKitSiPotentiometersCalibration ${REQUIRED_CISST_LIBRARIES})
+  install (
+    TARGETS sawIntuitiveResearchKitSiPotentiometersCalibration
+    COMPONENT sawIntuitiveResearchKit-Applications
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
 
-    install (
-      TARGETS sawIntuitiveResearchKitSiPotentiometersCalibration
-      COMPONENT sawIntuitiveResearchKit-Applications
-      RUNTIME DESTINATION bin
-      LIBRARY DESTINATION lib
-      ARCHIVE DESTINATION lib)
-
-  endif () # components found
-
-endif (cisst_FOUND_AS_REQUIRED)
+endif () # components found
