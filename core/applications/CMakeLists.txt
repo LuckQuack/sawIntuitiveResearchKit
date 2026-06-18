@@ -42,8 +42,6 @@ set (REQUIRED_CISST_LIBRARIES
 # find cisst and make sure the required libraries have been compiled
 find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
-
-
 # catkin/ROS paths
 cisst_is_catkin_build (sawIntuitiveResearchKitExamples_IS_CATKIN_BUILT)
 if (sawIntuitiveResearchKitExamples_IS_CATKIN_BUILT)

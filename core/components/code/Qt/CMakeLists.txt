@@ -25,8 +25,6 @@ set (REQUIRED_CISST_LIBRARIES
 # cisst
 find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
-
-
 # for Qt generated header files
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
 set (CMAKE_AUTOMOC ON)
