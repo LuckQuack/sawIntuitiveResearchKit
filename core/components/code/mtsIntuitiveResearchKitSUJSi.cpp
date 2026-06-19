@@ -50,6 +50,7 @@ public:
                                                const prmSimulationType simulationMode,
                                                mtsInterfaceProvided * interfaceProvided,
                                                mtsInterfaceRequired * interfaceRequired,
+                                               mtsInterfaceRequired * interfaceRequiredIO,
                                                mtsInterfaceProvided * interfaceMessage):
         m_name(name),
         m_simulation_mode(simulationMode),
@@ -160,8 +161,11 @@ public:
         m_interface_required = interfaceRequired;
         m_interface_required->AddFunction("set_base_frame", m_arm_set_base_frame);
         m_interface_required->AddFunction("local/measured_cp", m_get_local_measured_cp);
-        m_interface_required->AddFunction("primary/measured_js", primary_measured_js);
-        m_interface_required->AddFunction("secondary/measured_js", secondary_measured_js);
+
+        CMN_ASSERT(interfaceRequiredIO);
+        m_interface_required_IO = interfaceRequiredIO;
+        m_interface_required_IO->AddFunction("primary/measured_js", primary_measured_js);
+        m_interface_required_IO->AddFunction("secondary/measured_js", secondary_measured_js);
     }
 
 
@@ -268,6 +272,7 @@ public:
     // interfaces
     mtsInterfaceProvided * m_interface_provided = nullptr;
     mtsInterfaceRequired * m_interface_required = nullptr;
+    mtsInterfaceRequired * m_interface_required_IO = nullptr;
 
     // state of this SUJ arm
     mtsStateTable m_state_table; // for positions, fairly slow, i.e 12 * delay for a2d
@@ -454,13 +459,16 @@ void mtsIntuitiveResearchKitSUJSi::Configure(const std::string & filename)
         const size_t nb_joints = NB_JOINTS.at(name);
 
         // add interfaces, one is provided so users can find the SUJ
-        // info, the other is required to the SUJ can get position of
-        // ECM and change base frame on attached arms
+        // info, the other is required so the SUJ can get position of
+        // ECM and change base frame on attached arms, and the last is
+        // required to get joint states from the IO component.
         mtsInterfaceProvided * interfaceProvided = this->AddInterfaceProvided(name);
         mtsInterfaceRequired * interfaceRequired = this->AddInterfaceRequired(name, MTS_OPTIONAL);
+        mtsInterfaceRequired * interfaceRequiredIO = this->AddInterfaceRequired(name + "IO", MTS_OPTIONAL);
         auto sarm = new mtsIntuitiveResearchKitSUJSiArmData(name, m_simulation_mode,
                                                             interfaceProvided,
                                                             interfaceRequired,
+                                                            interfaceRequiredIO,
                                                             m_interface);
         m_sarms[index] = sarm;
         AddStateTable(&(sarm->m_state_table));

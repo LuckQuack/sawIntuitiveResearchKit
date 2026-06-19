@@ -522,20 +522,44 @@ void dvrk::system_ROS::add_topics_SUJ_voltages(void)
         CMN_LOG_CLASS_INIT_WARNING << "add_topics_SUJ_voltages: no SUJ on this console!  option -s ignored!" << std::endl;
         return;
     }
-    mtsROSBridge * pub_bridge = new mtsROSBridge("SUJ_Voltages", 0.005 * cmn_s,
-                                                 node_handle_ptr());
-    const auto arms = std::list<std::string>({"ECM", "PSM1", "PSM2", "PSM3"});
-    for (auto arm : arms) {
-        pub_bridge->AddPublisherFromCommandRead<vctDoubleVec, CISST_RAL_MSG(sensor_msgs, JointState)>
-            ("SUJ_" + arm, "GetVoltagesPrimary",
-             "SUJ/" + arm + "/primary_voltage/measured_js");
-        pub_bridge->AddPublisherFromCommandRead<vctDoubleVec, CISST_RAL_MSG(sensor_msgs, JointState)>
-            ("SUJ_" + arm, "GetVoltagesSecondary",
-             "SUJ/" + arm + "/secondary_voltage/measured_js");
-        m_connections.Add(pub_bridge->GetName(), "SUJ_" + arm,
-                          "SUJ", arm);
+
+    if (m_system->m_SUJ && m_system->m_SUJ->generation() == dvrk::generation::Si) {
+        mtsROSBridge * pub_bridge = new mtsROSBridge("SUJ_Voltages", 0.005 * cmn_s,
+                                                     node_handle_ptr());
+        const auto arms = std::list<std::string>({"ECM", "PSM1", "PSM2", "PSM3"});
+        for (auto arm : arms) {
+            auto arm_proxy_it = m_system->m_arm_proxies.find(arm);
+            if (arm_proxy_it != m_system->m_arm_proxies.end()) {
+                auto arm_proxy = arm_proxy_it->second;
+                if (!arm_proxy->m_IO_component_name.empty()) {
+                    pub_bridge->AddPublisherFromCommandRead<prmStateJoint, CISST_RAL_MSG(sensor_msgs, JointState)>
+                        ("SUJ_" + arm, "primary_voltage/measured_js",
+                         "SUJ/" + arm + "/primary_voltage/measured_js");
+                    pub_bridge->AddPublisherFromCommandRead<prmStateJoint, CISST_RAL_MSG(sensor_msgs, JointState)>
+                        ("SUJ_" + arm, "secondary_voltage/measured_js",
+                         "SUJ/" + arm + "/secondary_voltage/measured_js");
+                    m_connections.Add(pub_bridge->GetName(), "SUJ_" + arm,
+                                       arm_proxy->m_IO_component_name, arm + "_SUJ_Si");
+                }
+            }
+        }
+        component_manager->AddComponent(pub_bridge);
+    } else {
+        mtsROSBridge * pub_bridge = new mtsROSBridge("SUJ_Voltages", 0.005 * cmn_s,
+                                                     node_handle_ptr());
+        const auto arms = std::list<std::string>({"ECM", "PSM1", "PSM2", "PSM3"});
+        for (auto arm : arms) {
+            pub_bridge->AddPublisherFromCommandRead<vctDoubleVec, CISST_RAL_MSG(sensor_msgs, JointState)>
+                ("SUJ_" + arm, "GetVoltagesPrimary",
+                 "SUJ/" + arm + "/primary_voltage/measured_js");
+            pub_bridge->AddPublisherFromCommandRead<vctDoubleVec, CISST_RAL_MSG(sensor_msgs, JointState)>
+                ("SUJ_" + arm, "GetVoltagesSecondary",
+                 "SUJ/" + arm + "/secondary_voltage/measured_js");
+            m_connections.Add(pub_bridge->GetName(), "SUJ_" + arm,
+                               "SUJ", arm);
+        }
+        component_manager->AddComponent(pub_bridge);
     }
-    component_manager->AddComponent(pub_bridge);
 }
 
 

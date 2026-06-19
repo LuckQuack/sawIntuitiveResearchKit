@@ -503,10 +503,16 @@ dvrk::generation dvrk::arm_proxy::generation(void) const
 {
     if (m_arm != nullptr) {
         return m_arm->generation();
-    } else {
-        CMN_LOG_INIT_ERROR << "arm_proxy::generation failed, arm needs to be configured first" << std::endl;
-        exit(EXIT_FAILURE);
     }
+    if (m_config != nullptr) {
+        if (m_config->type == dvrk::arm_type::SUJ_Si) {
+            return dvrk::generation::Si;
+        } else if (m_config->type == dvrk::arm_type::SUJ_Classic) {
+            return dvrk::generation::Classic;
+        }
+    }
+    CMN_LOG_INIT_ERROR << "arm_proxy::generation failed, arm needs to be configured first" << std::endl;
+    exit(EXIT_FAILURE);
     return dvrk::generation::GENERATION_UNDEFINED;
 }
 

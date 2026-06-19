@@ -807,8 +807,13 @@ bool dvrk::system::Connect(void)
             const std::string & name = iter.first;
             auto & arm_proxy = iter.second;
             if (arm_proxy->m_config->native_or_derived_PSM() || arm_proxy->m_config->native_or_derived_ECM()) {
-                component_manager->Connect("SUJ", name,
-                                           arm_proxy->m_IO_component_name, name + "_SUJ_Si");
+                if (!component_manager->Connect("SUJ", name + "IO",
+                                                arm_proxy->m_IO_component_name, name + "_SUJ_Si")) {
+                    CMN_LOG_CLASS_INIT_ERROR << "Connect: failed to connect component SUJ required interface "
+                                             << name << "IO to " << arm_proxy->m_IO_component_name
+                                             << " provided interface " << name << "_SUJ_Si" << std::endl;
+                    return false;
+                }
             }
         }
     }
