@@ -378,7 +378,7 @@ void mtsTeleOperationPSM::clutch_event_handler(const prmEventButton & button)
         m_clutched = false;
         break;
     default:
-        break;
+        return;
     }
 
     Clutch(m_clutched);
