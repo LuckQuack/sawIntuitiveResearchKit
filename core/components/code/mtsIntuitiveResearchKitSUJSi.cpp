@@ -23,7 +23,6 @@ http://www.cisst.org/cisst/license.txt.
 // cisst
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitSUJSi.h>
 
-#if sawIntuitiveResearchKit_HAS_SUJ_Si
 
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKit.h>
 #include <cisstMultiTask/mtsInterfaceProvided.h>
@@ -37,125 +36,27 @@ http://www.cisst.org/cisst/license.txt.
 #include <cisstParameterTypes/prmEventButton.h>
 #include <cisstRobot/robManipulator.h>
 
-// BLE arduino over gatt
-#include <gattlib.h>
-
-static const char ATTRIB_POTS[] = "babb122c-de4c-11ec-9d64-0242ac120101";
-static const std::map<std::string, size_t> BASE_POT_INDEX = {{"PSM3", 0}, {"ECM", 1}, {"PSM2", 2}, {"PSM1", 3}};
 static const std::map<std::string, size_t> NB_JOINTS = {{"PSM1", 4}, {"PSM2", 4}, {"PSM3", 5}, {"ECM", 4}};
 
 CMN_IMPLEMENT_SERVICES_DERIVED_ONEARG(mtsIntuitiveResearchKitSUJSi, mtsTaskPeriodic, mtsTaskPeriodicConstructorArg);
 
-class mtsIntuitiveResearchKitSUJSiArduino
-{
-public:
-    inline mtsIntuitiveResearchKitSUJSiArduino(const std::string & arduinoMAC,
-                                               const std::string & name,
-                                               mtsInterfaceProvided * interfaceMessage):
-        m_MAC(arduinoMAC),
-        m_name(name),
-        m_timestamp(0),
-        m_interface_message(interfaceMessage)
-    {
-        gattlib_string_to_uuid(ATTRIB_POTS, strlen(ATTRIB_POTS) + 1, &m_g_uuid);
-    }
-
-
-    inline bool check_connection(void)
-    {
-        if (m_fault) {
-            return false;
-        }
-
-        if (m_MAC.empty()) {
-            m_fault = true;
-            m_interface_message->SendWarning("SUJ: BlueTooth MAC adress for " + m_name + " is empty, dropping this SUJ");
-            return false;
-        }
-
-        // try to connect if not connected
-        if (!m_connected) {
-            m_connection = gattlib_connect(nullptr, m_MAC.c_str(),
-                                           GATTLIB_CONNECTION_OPTIONS_LEGACY_DEFAULT);
-            if (m_connection != nullptr) {
-                m_connected = true;
-            } else {
-                m_interface_message->SendWarning("SUJ: BlueTooth connection for " + m_name + " failed, dropping this SUJ");
-                // gattlib_disconnect(m_connection);
-                m_connected = false;
-                m_connection = nullptr;
-                m_fault = true;
-            }
-        }
-        return m_connected;
-    }
-
-
-    inline bool update_raw_pots(void)
-    {
-        // try to connect if not connected
-        if (!check_connection()) {
-            return false;
-        }
-
-        // get data if connected
-        char * buffer = nullptr;
-        int ret;
-        size_t len;
-        ret = gattlib_read_char_by_uuid(m_connection, &m_g_uuid, (void **)&buffer, &len);
-        if (ret == GATTLIB_SUCCESS) {
-            // fill last 4 elements from dESSJ over BLE
-            m_json_reader.parse(std::string(buffer, len), m_json_value);
-            Json::Value jsonStamp = m_json_value["timestamp"];
-            m_timestamp = jsonStamp.asUInt();
-            Json::Value jsonPots = m_json_value["pots"];
-            cmnDataJSON<vctDoubleMat>::DeSerializeText(m_raw_pots, jsonPots);
-            gattlib_characteristic_free_value(buffer);
-            return true;
-        }
-        gattlib_characteristic_free_value(buffer); // needed?
-        return false;
-    }
-
-
-    // arduino/gatt
-    std::string m_MAC;
-    std::string m_name;
-    size_t m_timestamp;
-    bool m_fault = false;
-    bool m_connected = false;
-    gatt_connection_t * m_connection = nullptr;
-    uuid_t m_g_uuid;
-
-    // json parsing
-    Json::Reader m_json_reader;
-    Json::Value m_json_value;
-    vctDoubleMat m_raw_pots;
-
-    // for messages
-    mtsInterfaceProvided * m_interface_message = nullptr;
-};
-
-
-class mtsIntuitiveResearchKitSUJSiArmData: public mtsIntuitiveResearchKitSUJSiArduino
+class mtsIntuitiveResearchKitSUJSiArmData
 {
 public:
 
     typedef enum {SUJ_UNDEFINED, SUJ_PSM, SUJ_ECM, SUJ_MOTORIZED_PSM} SujType;
 
     inline mtsIntuitiveResearchKitSUJSiArmData(const std::string & name,
-                                               const std::string & arduinoMAC,
                                                const prmSimulationType simulationMode,
                                                mtsInterfaceProvided * interfaceProvided,
                                                mtsInterfaceRequired * interfaceRequired,
                                                mtsInterfaceProvided * interfaceMessage):
-        mtsIntuitiveResearchKitSUJSiArduino(arduinoMAC, name, interfaceMessage),
         m_name(name),
         m_simulation_mode(simulationMode),
         m_nb_joints(NB_JOINTS.at(name)),
-        m_base_arduino_pot_index(BASE_POT_INDEX.at(name)),
         m_state_table(500, name),
-        m_state_table_configuration(100, name + "Configuration")
+        m_state_table_configuration(100, name + "Configuration"),
+        m_interface_message(interfaceMessage)
     {
         // recalibration matrix
         m_recalibration_matrix.SetSize(m_nb_joints, m_nb_joints);
@@ -220,7 +121,6 @@ public:
         m_state_table.AddData(m_local_measured_cp, "local/measured_cp");
 
         m_state_table_configuration.AddData(m_name, "name");
-        m_state_table_configuration.AddData(m_serial_number, "serial_number");
 
         CMN_ASSERT(interfaceProvided);
         m_interface_provided = interfaceProvided;
@@ -240,7 +140,6 @@ public:
         m_interface_provided->AddCommandReadState(m_state_table, m_voltages[0], "GetVoltagesPrimary");
         m_interface_provided->AddCommandReadState(m_state_table, m_voltages[1], "GetVoltagesSecondary");
         m_interface_provided->AddCommandReadState(m_state_table_configuration, m_name, "GetName");
-        m_interface_provided->AddCommandReadState(m_state_table_configuration, m_serial_number, "GetSerialNumber");
 
         // write commands
         m_interface_provided->AddCommandWrite(&mtsIntuitiveResearchKitSUJSiArmData::clutch_command, this,
@@ -261,6 +160,8 @@ public:
         m_interface_required = interfaceRequired;
         m_interface_required->AddFunction("set_base_frame", m_arm_set_base_frame);
         m_interface_required->AddFunction("local/measured_cp", m_get_local_measured_cp);
+        m_interface_required->AddFunction("primary/measured_js", primary_measured_js);
+        m_interface_required->AddFunction("secondary/measured_js", secondary_measured_js);
     }
 
 
@@ -357,17 +258,12 @@ public:
 
     // name of this SUJ arm (ECM, PSM1, ...)
     std::string m_name;
-    // serial number
-    std::string m_serial_number;
 
     // simulated or not
     prmSimulationType m_simulation_mode;
 
     // number of joints for this arm
     size_t m_nb_joints;
-
-    // index of prismatic pot on base arduino
-    size_t m_base_arduino_pot_index;
 
     // interfaces
     mtsInterfaceProvided * m_interface_provided = nullptr;
@@ -407,6 +303,12 @@ public:
     mtsFunctionWrite m_arm_set_base_frame;
     // for reference arm only, get current position
     mtsFunctionRead m_get_local_measured_cp;
+
+    mtsFunctionRead primary_measured_js;
+    mtsFunctionRead secondary_measured_js;
+
+    // for messages
+    mtsInterfaceProvided * m_interface_message = nullptr;
 
     struct {
         mtsFunctionWrite current_state;
@@ -529,13 +431,6 @@ void mtsIntuitiveResearchKitSUJSi::Configure(const std::string & filename)
     }
 
     if (m_simulation_mode != prmSimulationType::KINEMATIC) {
-        // base arduino used for SUJ prismatic joints
-        if (!jsonConfig["base_arduino_mac"]) {
-            CMN_LOG_CLASS_INIT_ERROR << "Configure: \"base_arduino_mac\" is missing" << std::endl;
-            exit(EXIT_FAILURE);
-        }
-        const std::string mac = jsonConfig["base_arduino_mac"].asString();
-        m_base_arduino = new mtsIntuitiveResearchKitSUJSiArduino(mac, "column", m_interface);
     }
 
     // find all arms, there should be 4 of them
@@ -558,22 +453,12 @@ void mtsIntuitiveResearchKitSUJSi::Configure(const std::string & filename)
 
         const size_t nb_joints = NB_JOINTS.at(name);
 
-        std::string mac = "00:00:00:00:00:00";
-        if (m_simulation_mode == prmSimulationType::NONE) {
-            if (!jsonArm["arduino_mac"]) {
-                CMN_LOG_CLASS_INIT_ERROR << "Configure: \"arduino_mac\" is missing for SUJ \""
-                                         << name << "\"" << std::endl;
-                exit(EXIT_FAILURE);
-            }
-            mac = jsonArm["arduino_mac"].asString();
-        }
-
         // add interfaces, one is provided so users can find the SUJ
         // info, the other is required to the SUJ can get position of
         // ECM and change base frame on attached arms
         mtsInterfaceProvided * interfaceProvided = this->AddInterfaceProvided(name);
         mtsInterfaceRequired * interfaceRequired = this->AddInterfaceRequired(name, MTS_OPTIONAL);
-        auto sarm = new mtsIntuitiveResearchKitSUJSiArmData(name, mac, m_simulation_mode,
+        auto sarm = new mtsIntuitiveResearchKitSUJSiArmData(name, m_simulation_mode,
                                                             interfaceProvided,
                                                             interfaceRequired,
                                                             m_interface);
@@ -603,31 +488,8 @@ void mtsIntuitiveResearchKitSUJSi::Configure(const std::string & filename)
         }
 
         if (m_simulation_mode != prmSimulationType::KINEMATIC) {
-            // find serial number
-            sarm->m_serial_number = jsonArm["serial_number"].asString();
-
             // read pot settings
             sarm->m_state_table_configuration.Start();
-            cmnDataJSON<vctDoubleVec>::DeSerializeText(sarm->m_voltage_to_position_offsets[0], jsonArm["primary_offsets"]);
-            cmnDataJSON<vctDoubleVec>::DeSerializeText(sarm->m_voltage_to_position_offsets[1], jsonArm["secondary_offsets"]);
-            cmnDataJSON<vctDoubleVec>::DeSerializeText(sarm->m_voltage_to_position_scales[0], jsonArm["primary_scales"]);
-            cmnDataJSON<vctDoubleVec>::DeSerializeText(sarm->m_voltage_to_position_scales[1], jsonArm["secondary_scales"]);
-            for (auto vec : sarm->m_voltage_to_position_offsets) {
-                if (vec.size() != nb_joints) {
-                    CMN_LOG_CLASS_INIT_ERROR << "Configure: incorrect number of voltage to position offsets for \""
-                                             << name << "\", expected " << nb_joints
-                                             << " but found " << vec.size() << " elements" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-            }
-            for (auto vec : sarm->m_voltage_to_position_scales) {
-                if (vec.size() != nb_joints) {
-                    CMN_LOG_CLASS_INIT_ERROR << "Configure: incorrect number of voltage to position scales for \""
-                                             << name << "\", expected " << nb_joints
-                                             << " but found " << vec.size() << " elements" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-            }
         } else {
             // look for hard coded position if available - users can always push new joint values using ROS
             Json::Value jsonPosition = jsonArm["simulated_position"];
@@ -784,73 +646,59 @@ void mtsIntuitiveResearchKitSUJSi::get_robot_data(void)
         return;
     }
 
-    // update pot values from base arduino
-    if (m_base_arduino) {
-        m_base_arduino->update_raw_pots();
-    }
-
     for (auto sarm : m_sarms) {
         if (sarm != nullptr) {
-            // see if we can get updated pot values
-            if (sarm->update_raw_pots()) {
+            prmStateJoint primary_js, secondary_js;
+            if (sarm->primary_measured_js(primary_js) && sarm->secondary_measured_js(secondary_js)) {
+                if (primary_js.Valid() && secondary_js.Valid()) {
+                    sarm->m_positions[0].Assign(primary_js.Position());
+                    sarm->m_positions[1].Assign(secondary_js.Position());
 
-                // first joint comes from base arduino
-                if (m_base_arduino && m_base_arduino->m_connected) {
-                    sarm->m_voltages[0].at(0) = m_base_arduino->m_raw_pots.Row(0).at(sarm->m_base_arduino_pot_index);
-                    sarm->m_voltages[1].at(0) = m_base_arduino->m_raw_pots.Row(1).at(sarm->m_base_arduino_pot_index);
-                } else {
-                    sarm->m_voltages[0].at(0) = 0.0;
-                    sarm->m_voltages[1].at(0) = 0.0;
-                }
-                // last 3 to 4 joints come from this arm's arduino
-                size_t joints_to_copy = sarm->m_nb_joints - 1;
-                sarm->m_voltages[0].Ref(joints_to_copy, 1) = sarm->m_raw_pots.Row(0).Ref(joints_to_copy);
-                sarm->m_voltages[1].Ref(joints_to_copy, 1) = sarm->m_raw_pots.Row(1).Ref(joints_to_copy);
+                    // compare primary and secondary pots when arm is not clutched
+                    const double angleTolerance = 2.0 * cmnPI_180;
+                    const double distanceTolerance = 3.0 * cmn_mm;
+                    sarm->m_delta_measured_js.DifferenceOf(sarm->m_positions[0], sarm->m_positions[1]);
+                    if ((sarm->m_delta_measured_js[0] > distanceTolerance) ||
+                        (sarm->m_delta_measured_js.Ref(sarm->m_nb_joints - 1, 1).MaxAbsElement() > angleTolerance)) {
+                        // send messages if this is new
+                        if (sarm->m_pots_agree) {
+                            dispatch_warning(sarm->m_name + " primary and secondary potentiometers don't seem to agree");
+                            CMN_LOG_CLASS_RUN_WARNING << "get_robot_data, error: " << std::endl
+                                                      << " - " << this->GetName() << ": " << sarm->m_name << std::endl
+                                                      << " - primary:   " << sarm->m_positions[0] << std::endl
+                                                      << " - secondary: " << sarm->m_positions[1] << std::endl;
+                            sarm->m_pots_agree = false;
+                        }
+                    } else {
+                        if (!sarm->m_pots_agree) {
+                            dispatch_status(sarm->m_name + " primary and secondary potentiometers agree");
+                            CMN_LOG_CLASS_RUN_VERBOSE << "get_robot_data recovery" << std::endl
+                                                      << " - " << this->GetName() << ": " << sarm->m_name << std::endl;
+                            sarm->m_pots_agree = true;
+                        }
+                    }
 
-                // convert to SI
-                sarm->m_positions[0].Assign(sarm->m_voltage_to_position_offsets[0]);
-                sarm->m_positions[0].AddElementwiseProductOf(sarm->m_voltage_to_position_scales[0], sarm->m_voltages[0]);
-                sarm->m_positions[1].Assign(sarm->m_voltage_to_position_offsets[1]);
-                sarm->m_positions[1].AddElementwiseProductOf(sarm->m_voltage_to_position_scales[1], sarm->m_voltages[1]);
+                    // use average of positions reported by potentiometers
+                    sarm->m_live_measured_js.Position().SumOf(sarm->m_positions[0],
+                                                              sarm->m_positions[1]);
+                    sarm->m_live_measured_js.Position().Divide(2.0);
+                    sarm->m_live_measured_js.SetValid(true);
 
-                // compare primary and secondary pots when arm is not clutched
-                const double angleTolerance = 2.0 * cmnPI_180;
-                const double distanceTolerance = 3.0 * cmn_mm;
-                sarm->m_delta_measured_js.DifferenceOf(sarm->m_positions[0], sarm->m_positions[1]);
-                if ((sarm->m_delta_measured_js[0] > distanceTolerance) ||
-                    (sarm->m_delta_measured_js.Ref(3, 1).MaxAbsElement() > angleTolerance)) {
-                    // send messages if this is new
-                    if (sarm->m_pots_agree) {
-                        dispatch_warning(sarm->m_name + " primary and secondary potentiometers don't seem to agree");
-                        CMN_LOG_CLASS_RUN_WARNING << "get_robot_data, error: " << std::endl
-                                                  << " - " << this->GetName() << ": " << sarm->m_name << std::endl
-                                                  << " - primary:   " << sarm->m_positions[0] << std::endl
-                                                  << " - secondary: " << sarm->m_positions[1] << std::endl;
-                        sarm->m_pots_agree = false;
+                    if (sarm->m_waiting_for_live) {
+                        // copy live jp
+                        sarm->m_measured_js.Position().Assign(sarm->m_live_measured_js.Position());
+                        sarm->m_measured_js.SetValid(true);
+                        sarm->m_measured_js.SetTimestamp(mtsComponentManager::GetInstance()->GetTimeServer().GetRelativeTime());
+                        sarm->m_waiting_for_live = false;
+                        sarm->m_need_update_forward_kinemactics = true;
                     }
                 } else {
-                    if (!sarm->m_pots_agree) {
-                        dispatch_status(sarm->m_name + " primary and secondary potentiometers agree");
-                        CMN_LOG_CLASS_RUN_VERBOSE << "get_robot_data recovery" << std::endl
-                                                  << " - " << this->GetName() << ": " << sarm->m_name << std::endl;
-                        sarm->m_pots_agree = true;
-                    }
+                    sarm->m_live_measured_js.SetValid(false);
+                    sarm->m_measured_js.SetValid(false);
                 }
-
-                // use average of positions reported by potentiometers
-                sarm->m_live_measured_js.Position().SumOf(sarm->m_positions[0],
-                                                          sarm->m_positions[1]);
-                sarm->m_live_measured_js.Position().Divide(2.0);
-                sarm->m_live_measured_js.SetValid(true);
-
-                if (sarm->m_waiting_for_live) {
-                    // copy live jp
-                    sarm->m_measured_js.Position().Assign(sarm->m_live_measured_js.Position());
-                    sarm->m_measured_js.SetValid(true);
-                    sarm->m_measured_js.SetTimestamp(mtsComponentManager::GetInstance()->GetTimeServer().GetRelativeTime());
-                    sarm->m_waiting_for_live = false;
-                    sarm->m_need_update_forward_kinemactics = true;
-                }
+            } else {
+                sarm->m_live_measured_js.SetValid(false);
+                sarm->m_measured_js.SetValid(false);
             }
         }
     }
@@ -1074,4 +922,3 @@ void mtsIntuitiveResearchKitSUJSi::dispatch_operating_state(void)
     }
 }
 
-#endif // sawIntuitiveResearchKit_HAS_SUJ_Si

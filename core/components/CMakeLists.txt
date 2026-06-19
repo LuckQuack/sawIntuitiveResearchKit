@@ -43,14 +43,6 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND)
   # catkin/ROS paths
   cisst_set_output_path ()
 
-  # gattlib is not available on Windows
-  set (OPT_MSG "Compile code to support the SI SUJ over bluetooth (requires gattlib)")
-  if (WIN32 OR APPLE)
-    option (sawIntuitiveResearchKit_HAS_SUJ_Si ${OPT_MSG} OFF)
-  else ()
-    option (sawIntuitiveResearchKit_HAS_SUJ_Si ${OPT_MSG} ON)
-  endif ()
-
   set (OPT_MSG "Compile code to support the HID head sensor like Goovis HD (requires hidapi-hidraw)")
   if (WIN32 OR APPLE)
     option (sawIntuitiveResearchKit_HAS_HID_HEAD_SENSOR ${OPT_MSG} OFF)
@@ -70,32 +62,7 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND)
     endif ()
   endif ()
 
-  # external project for gattlib
-  if (sawIntuitiveResearchKit_HAS_SUJ_Si)
-    include (ExternalProject)
 
-    set (SAW_GATTLIB_GIT_REPOSITORY https://github.com/jhu-cisst-external/gattlib)
-    ExternalProject_Add (gattlibExternal
-                         PREFIX gattlib
-                         GIT_REPOSITORY    ${SAW_GATTLIB_GIT_REPOSITORY}
-                         GIT_TAG          "dvrk-2.2"
-                         CMAKE_CACHE_ARGS -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-                                          -DGATTLIB_BUILD_EXAMPLES:BOOL=OFF
-                                          -DGATTLIB_BUILD_DOCS:BOOL=OFF
-                                          -DGATTLIB_PYTHON_INTERFACE:BOOL=OFF
-                                          -DGATTLIB_BUILD_EXAMPLES:BOOL=OFF
-                                          -DGATTLIB_SHARED_LIB:BOOL=ON
-                                          -DCMAKE_INSTALL_PREFIX:FILEPATH=${CMAKE_INSTALL_PREFIX}
-                         UPDATE_COMMAND ""
-                         INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
-                         )
-    set (gattlib_INCLUDE_DIR "${CMAKE_INSTALL_PREFIX}/include")
-    set (gattlib_LIBRARY_DIR "${CMAKE_INSTALL_PREFIX}/lib")
-    set (gattlib_LIBRARIES gattlib)
-
-    include_directories (${gattlib_INCLUDE_DIR})
-    link_directories (${gattlib_LIBRARY_DIR})
-  endif ()
 
   # saw components configuration
   include_directories (${sawTextToSpeech_INCLUDE_DIR}
@@ -114,12 +81,6 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND)
        "${sawIntuitiveResearchKit_SOURCE_DIR}/include/sawIntuitiveResearchKit")
   set (sawIntuitiveResearchKit_LIBRARY_DIR
     "${LIBRARY_OUTPUT_PATH}")
-
-  if (sawIntuitiveResearchKit_HAS_SUJ_Si)
-    set (sawIntuitiveResearchKit_LIBRARY_DIR
-      ${sawIntuitiveResearchKit_LIBRARY_DIR}
-      "${gattlib_LIBRARY_DIR}")
-  endif ()
 
   set (sawIntuitiveResearchKit_LIBRARIES sawIntuitiveResearchKit)
 
@@ -257,9 +218,6 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND)
   set_target_properties (sawIntuitiveResearchKit PROPERTIES
                          VERSION ${sawIntuitiveResearchKit_VERSION}
                          FOLDER "sawIntuitiveResearchKit")
-  if (sawIntuitiveResearchKit_HAS_SUJ_Si)
-    add_dependencies (sawIntuitiveResearchKit gattlibExternal)
-  endif ()
 
   # link against non cisst libraries and cisst components
   target_link_libraries (
@@ -267,12 +225,6 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND)
     ${sawTextToSpeech_LIBRARIES}
     ${sawRobotIO1394_LIBRARIES}
     ${sawControllers_LIBRARIES})
-
-  if (sawIntuitiveResearchKit_HAS_SUJ_Si)
-    target_link_libraries (
-      sawIntuitiveResearchKit PUBLIC
-      ${gattlib_LIBRARIES})
-  endif ()
 
   if (sawIntuitiveResearchKit_HAS_HID_HEAD_SENSOR)
     target_link_libraries (

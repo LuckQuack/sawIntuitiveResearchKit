@@ -30,9 +30,7 @@ http://www.cisst.org/cisst/license.txt.
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitECM.h>
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitSUJ.h>
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitSUJFixed.h>
-#if sawIntuitiveResearchKit_HAS_SUJ_Si
-  #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitSUJSi.h>
-#endif
+#include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitSUJSi.h>
 #include <sawIntuitiveResearchKit/system.h>
 #include <sawIntuitiveResearchKit/IO_proxy.h>
 
@@ -191,16 +189,10 @@ void dvrk::arm_proxy::create_arm()
         break;
     case dvrk::arm_type::SUJ_Si:
         {
-#if sawIntuitiveResearchKit_HAS_SUJ_Si
             mtsIntuitiveResearchKitSUJSi * suj = new mtsIntuitiveResearchKitSUJSi(m_name, m_config->period);
             suj->set_simulation_mode(m_config->simulation);
             suj->Configure(m_arm_configuration_file);
             component_manager->AddComponent(suj);
-#else
-            CMN_LOG_INIT_ERROR << "dvrk::arm_proxy::ConfigureArm: can't create an arm of type SUJ_Si because sawIntuitiveResearchKit_HAS_SUJ_Si is set to OFF in CMake"
-                               << std::endl;
-            exit(EXIT_FAILURE);
-#endif
         }
         break;
     case dvrk::arm_type::SUJ_Fixed:

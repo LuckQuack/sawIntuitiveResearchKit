@@ -296,13 +296,6 @@ void dvrk::system::Configure(const std::string & filename)
         add_arm_interfaces(arm_proxy);
     }
 
-    // load consoles if any
-    for (auto & iter : m_consoles) {
-        auto & console = iter.second;
-        console->create_components();
-        add_console_interfaces(console);
-    }
-
     // search for SUJs, real, not Fixed
     for (auto & iter : m_arm_proxies) {
         auto & arm_proxy = iter.second;
@@ -310,6 +303,58 @@ void dvrk::system::Configure(const std::string & filename)
             || (arm_proxy->m_config->type == dvrk::arm_type::SUJ_Si)) {
             m_SUJ = arm_proxy;
         }
+    }
+
+    // Load SUJ Si IO configurations if applicable
+    if (m_SUJ && m_SUJ->m_config->type == dvrk::arm_type::SUJ_Si && m_SUJ->m_config->simulation == prmSimulationType::NONE) {
+        std::ifstream jsonStream;
+        jsonStream.open(m_SUJ->m_arm_configuration_file.c_str());
+        Json::Value jsonConfig;
+        Json::Reader jsonReader;
+        if (!jsonReader.parse(jsonStream, jsonConfig)) {
+            CMN_LOG_CLASS_INIT_ERROR << "Configure: failed to parse SUJ configuration file \""
+                                     << m_SUJ->m_arm_configuration_file << "\"\n"
+                                     << jsonReader.getFormattedErrorMessages();
+            exit(EXIT_FAILURE);
+        }
+        const Json::Value jsonArms = jsonConfig["arms"];
+        for (unsigned int index = 0; index < jsonArms.size(); ++index) {
+            Json::Value jsonArm = jsonArms[index];
+            std::string name = jsonArm["name"].asString();
+            std::string serial;
+            auto iter = m_arm_proxies.find(name);
+            if (iter != m_arm_proxies.end()) {
+                serial = iter->second->m_config->serial;
+            }
+            if (serial == "" && !jsonArm["serial_number"].isNull()) {
+                serial = jsonArm["serial_number"].asString();
+            }
+            std::string sujSiFileName = "sawRobotIO1394-SUJ-Si-" + name + "-" + serial + ".json";
+            std::string full_path = this->find_file(sujSiFileName);
+            if (full_path != "") {
+                auto iter = m_arm_proxies.find(name);
+                if (iter != m_arm_proxies.end()) {
+                    auto & arm_proxy = iter->second;
+                    auto io_iter = m_IO_proxies.find(arm_proxy->m_IO_component_name);
+                    if (io_iter != m_IO_proxies.end()) {
+                        auto & IO_proxy = io_iter->second;
+                        CMN_LOG_CLASS_INIT_VERBOSE << "Configure: configuring IO component \"" << arm_proxy->m_IO_component_name
+                                                   << "\" with SUJ-Si file \"" << full_path << "\"" << std::endl;
+                        IO_proxy->configure(full_path);
+                    }
+                }
+            } else {
+                CMN_LOG_CLASS_INIT_WARNING << "Configure: SUJ-Si IO configuration file \"" << sujSiFileName
+                                           << "\" not found. Skipping IO configuration for " << name << "." << std::endl;
+            }
+        }
+    }
+
+    // load consoles if any
+    for (auto & iter : m_consoles) {
+        auto & console = iter.second;
+        console->create_components();
+        add_console_interfaces(console);
     }
 
     if (m_SUJ) {
@@ -754,6 +799,17 @@ bool dvrk::system::Connect(void)
         if (arm->SUJInterfaceRequiredToSUJ) {
             component_manager->Connect(this->GetName(), arm->SUJInterfaceRequiredToSUJ->GetName(),
                                        "SUJ", arm->m_name);
+        }
+    }
+
+    if (m_SUJ && m_SUJ->m_config->type == dvrk::arm_type::SUJ_Si && m_SUJ->m_config->simulation == prmSimulationType::NONE) {
+        for (const auto & iter : m_arm_proxies) {
+            const std::string & name = iter.first;
+            auto & arm_proxy = iter.second;
+            if (arm_proxy->m_config->native_or_derived_PSM() || arm_proxy->m_config->native_or_derived_ECM()) {
+                component_manager->Connect("SUJ", name,
+                                           arm_proxy->m_IO_component_name, name + "_SUJ_Si");
+            }
         }
     }
 

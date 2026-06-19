@@ -19,24 +19,19 @@ http://www.cisst.org/cisst/license.txt.
 #ifndef _mtsIntuitiveResearchKitSUJSi_h
 #define _mtsIntuitiveResearchKitSUJSi_h
 
-#include <sawIntuitiveResearchKit/sawIntuitiveResearchKitConfig.h>
-
-#if sawIntuitiveResearchKit_HAS_SUJ_Si
-
 #include <cisstMultiTask/mtsTaskPeriodic.h>
 #include <cisstParameterTypes/prmEventButton.h>
-#include <cisstParameterTypes/prmPositionCartesianGet.h>
 #include <cisstParameterTypes/prmOperatingState.h>
+#include <cisstParameterTypes/prmPositionCartesianGet.h>
 
 #include <cisstParameterTypes/prmSimulationType.h>
 
-#include <sawIntuitiveResearchKit/mtsStateMachine.h>
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitControlTypes.h>
+#include <sawIntuitiveResearchKit/mtsStateMachine.h>
 
 #include <sawIntuitiveResearchKit/sawIntuitiveResearchKitExport.h>
 
 // forward declarations
-class mtsIntuitiveResearchKitSUJSiArduino;
 class mtsIntuitiveResearchKitSUJSiArmData;
 
 class CISST_EXPORT mtsIntuitiveResearchKitSUJSi: public mtsTaskPeriodic
@@ -106,7 +101,6 @@ class CISST_EXPORT mtsIntuitiveResearchKitSUJSi: public mtsTaskPeriodic
     } state_events;
     mtsInterfaceProvided * m_interface;
 
-    mtsIntuitiveResearchKitSUJSiArduino * m_base_arduino = nullptr;
     // SUJ arms
     vctFixedSizeVector<mtsIntuitiveResearchKitSUJSiArmData *, 4> m_sarms;
     size_t m_reference_arm_index; // arm used to provide base frame to all other SUJ arms, traditionally the ECM
@@ -118,7 +112,5 @@ class CISST_EXPORT mtsIntuitiveResearchKitSUJSi: public mtsTaskPeriodic
 };
 
 CMN_DECLARE_SERVICES_INSTANTIATION(mtsIntuitiveResearchKitSUJSi);
-
-#endif // sawIntuitiveResearchKit_HAS_SUJ_Si
 
 #endif // _mtsIntuitiveResearchKitSUJSi_h

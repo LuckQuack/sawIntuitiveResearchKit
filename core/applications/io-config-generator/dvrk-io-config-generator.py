@@ -1073,6 +1073,24 @@ def generateConfig(calFileName, robotTypeName, hardwareVersion, serialNumber, ge
         gripperConfig = Config(calData, version, robotTypeName + "_gripper", hardwareVersion, serialNumber, generation)
         saveConfigFile(gripperConfigFileName, gripperConfig)
 
+    if generation == "Si" and robotTypeName in ["PSM1", "PSM2", "PSM3", "ECM"]:
+        # Generate blank SUJ IO config file
+        suj_nb_joints = 5 if robotTypeName == "PSM3" else 4
+        suj_config = {
+            "$id": "saw-robot-io-suj-si.schema.json",
+            "$version": "1",
+            "arm_name": robotTypeName,
+            "serial_number": serialNumber,
+            "primary_measured_js": [
+                { "scale": 1.0, "offset": 0.0 } for _ in range(suj_nb_joints)
+            ],
+            "secondary_measured_js": [
+                { "scale": 1.0, "offset": 0.0 } for _ in range(suj_nb_joints)
+            ]
+        }
+        suj_filename = "sawRobotIO1394-SUJ-Si-{}-{}".format(robotTypeName, serialNumber)
+        saveConfigFile(suj_filename, suj_config)
+
     return serialNumber
 
 
