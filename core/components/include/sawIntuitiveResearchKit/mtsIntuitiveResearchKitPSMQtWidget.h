@@ -22,6 +22,7 @@ http://www.cisst.org/cisst/license.txt.
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitArmQtWidget.h>
 #include <sawIntuitiveResearchKit/sawIntuitiveResearchKitQtExport.h>
 
+class QComboBox;
 
 class CISST_EXPORT mtsIntuitiveResearchKitPSMQtWidget: public mtsIntuitiveResearchKitArmQtWidget
 {

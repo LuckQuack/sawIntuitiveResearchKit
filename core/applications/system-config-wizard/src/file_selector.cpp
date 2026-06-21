@@ -21,7 +21,7 @@ namespace config_wizard {
 
 FileSelector::FileSelector(QWidget* parent) : QWidget(parent){
     QHBoxLayout* layout = new QHBoxLayout(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->setAlignment(Qt::AlignCenter);
 
     dialog = new QFileDialog(this);

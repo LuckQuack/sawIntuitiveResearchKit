@@ -105,7 +105,7 @@ ConsolesContainer::ConsolesContainer(SystemConfigModel& model, ConfigSources& co
     QLabel* no_tabs_view = new QLabel("Add console by pressing \"+\"");
     no_tabs_view->setStyleSheet("color: palette(text);");
     no_tabs_view->setAlignment(Qt::AlignCenter);
-    no_tabs_view->setMargin(10);
+    no_tabs_view->setContentsMargins(10, 10, 10, 10);
     this->addTab(no_tabs_view, QString());
     this->setTabEnabled(0, false);
     // Attach add console button to dummy tab

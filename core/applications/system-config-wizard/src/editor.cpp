@@ -36,7 +36,7 @@ Editor::Editor(ConfigSources& config_sources, SystemLauncher& launcher, QWidget*
     int default_font_size = no_tabs_view->font().pointSize();
     no_tabs_view->setStyleSheet("color: palette(text); font-size: " + QString::number(3 * default_font_size / 2) + "pt");
     no_tabs_view->setAlignment(Qt::AlignCenter);
-    no_tabs_view->setMargin(10);
+    no_tabs_view->setContentsMargins(10, 10, 10, 10);
     // Add empty, not enabled dummy tab
     tabs->addTab(no_tabs_view, QString());
     tabs->setTabEnabled(0, false);

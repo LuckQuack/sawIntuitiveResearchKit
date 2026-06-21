@@ -59,7 +59,7 @@ set (
   cisstParameterTypes
   cisstRobot
   cisstNumerical
-  cisstQt)
+)
 
 find_package (cisst REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
@@ -70,10 +70,17 @@ cisst_set_output_path ()
 # find it automatically
 find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
 
+# use the Qt major version selected by cisst
+if (NOT (CISST_QT_VERSION STREQUAL "6" OR CISST_QT_VERSION STREQUAL "5"))
+  message (FATAL_ERROR "CISST_QT_VERSION must be 6 or 5 for ${PROJECT_NAME}")
+endif ()
+find_package (Qt${CISST_QT_VERSION} REQUIRED COMPONENTS Widgets Core)
+
 if (sawIntuitiveResearchKit_FOUND)
 
   # for Qt widgets
   set (CMAKE_AUTOMOC ON)
+  set (CMAKE_INCLUDE_CURRENT_DIR ON)
 
   set (saw_intuitive_research_kit_example_psm_derived_INCLUDE_DIR
     "${saw_intuitive_research_kit_example_psm_derived_SOURCE_DIR}/include")
@@ -99,6 +106,8 @@ if (sawIntuitiveResearchKit_FOUND)
   target_link_libraries (sawIntuitiveResearchKitDerivedPSM
     ${cisst_LIBRARIES}
     ${sawIntuitiveResearchKit_LIBRARIES}
+    Qt${CISST_QT_VERSION}::Core
+    Qt${CISST_QT_VERSION}::Widgets
     ${catkin_LIBRARIES})
 
   if (ROS_VERSION EQUAL 2)

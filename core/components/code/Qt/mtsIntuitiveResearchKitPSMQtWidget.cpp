@@ -23,6 +23,7 @@ http://www.cisst.org/cisst/license.txt.
 // Qt include
 #include <QMessageBox>
 #include <QComboBox>
+#include <QLineEdit>
 
 // cisst
 #include <cisstMultiTask/mtsInterfaceRequired.h>

@@ -39,6 +39,8 @@ http://www.cisst.org/cisst/license.txt.
 #include <sawIntuitiveResearchKit/sawIntuitiveResearchKitQtExport.h>
 
 class QCheckBox;
+class QDoubleSpinBox;
+class QLineEdit;
 class QPushButton;
 class QTextEdit;
 

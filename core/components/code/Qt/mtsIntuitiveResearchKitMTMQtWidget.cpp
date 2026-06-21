@@ -20,6 +20,9 @@ http://www.cisst.org/cisst/license.txt.
 // system include
 #include <iostream>
 
+// Qt include
+#include <QLineEdit>
+
 // cisst
 #include <cisstMultiTask/mtsInterfaceRequired.h>
 

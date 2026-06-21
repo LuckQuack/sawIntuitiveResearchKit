@@ -1,4 +1,7 @@
 cmake_minimum_required (VERSION 3.16)
+if (POLICY CMP0144)
+  cmake_policy (SET CMP0144 NEW)
+endif ()
 project (dvrk_hrsv_widget VERSION 2.4.0)
 
 # first test for ROS1
@@ -30,9 +33,14 @@ else (catkin_FOUND)
   endif (ament_cmake_FOUND)
 endif (catkin_FOUND)
 
-# find Qt
-find_package (Qt5Widgets REQUIRED)
-find_package (Qt5Core REQUIRED)
+# find Qt without cisst dependency - prefer Qt6, fall back to Qt5
+find_package (Qt6 QUIET COMPONENTS Widgets Core)
+if (Qt6_FOUND)
+  set (QT_VERSION 6)
+else ()
+  find_package (Qt5 REQUIRED COMPONENTS Widgets Core)
+  set (QT_VERSION 5)
+endif ()
 
 set (CMAKE_AUTOMOC ON)
 set (CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -50,7 +58,8 @@ add_executable (hrsv_widget
 
 target_link_libraries (
   hrsv_widget
-  Qt5::Widgets
+  Qt${QT_VERSION}::Core
+  Qt${QT_VERSION}::Widgets
   ${catkin_LIBRARIES})
 
 
