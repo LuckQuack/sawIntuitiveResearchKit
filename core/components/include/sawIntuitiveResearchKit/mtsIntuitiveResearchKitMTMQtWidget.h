@@ -22,6 +22,8 @@ http://www.cisst.org/cisst/license.txt.
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitArmQtWidget.h>
 #include <sawIntuitiveResearchKit/sawIntuitiveResearchKitQtExport.h>
 
+class QLineEdit;
+
 class CISST_EXPORT mtsIntuitiveResearchKitMTMQtWidget: public mtsIntuitiveResearchKitArmQtWidget
 {
     Q_OBJECT;

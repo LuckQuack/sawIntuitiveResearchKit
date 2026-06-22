@@ -63,7 +63,7 @@ ConsoleInputsEditor::ConsoleInputsEditor(ConsoleInputConfig& model, ConfigSource
     head_sensor_stack->addWidget(new QWidget());
     QWidget* head_sensor_mtms = new QWidget();
     QHBoxLayout* head_sensor_mtms_layout = new QHBoxLayout(head_sensor_mtms);
-    head_sensor_mtms_layout->setMargin(0);
+    head_sensor_mtms_layout->setContentsMargins(0, 0, 0, 0);
     head_sensor_mtms_layout->addWidget(new QLabel("Which arm controller is your head sensor connected to?"));
     head_sensor_mtms_layout->addWidget(head_sensor_available_mtms);
     head_sensor_mtms_layout->addStretch();

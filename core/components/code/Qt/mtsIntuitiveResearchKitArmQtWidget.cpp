@@ -29,6 +29,7 @@ http://www.cisst.org/cisst/license.txt.
 #include <QScrollBar>
 #include <QCloseEvent>
 #include <QCoreApplication>
+#include <QDoubleSpinBox>
 
 // cisst
 #include <cisstMultiTask/mtsInterfaceRequired.h>

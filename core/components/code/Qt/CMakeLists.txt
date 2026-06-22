@@ -20,7 +20,7 @@ set (REQUIRED_CISST_LIBRARIES
   cisstMultiTaskQt
   cisstParameterTypes
   cisstParameterTypesQt
-  cisstQt)
+)
 
 # cisst
 find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
@@ -28,8 +28,13 @@ find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 # for Qt generated header files
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
 set (CMAKE_AUTOMOC ON)
-qt5_add_resources (sawIntuitiveResearchKit_QT_RESOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/logo.qrc)
+if (CISST_QT_VERSION STREQUAL "6")
+  qt_add_resources (sawIntuitiveResearchKit_QT_RESOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/logo.qrc)
+else ()
+  qt5_add_resources (sawIntuitiveResearchKit_QT_RESOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/logo.qrc)
+endif ()
 
 add_library (sawIntuitiveResearchKitQt
              ${sawIntuitiveResearchKit_HEADER_DIR}/system_Qt.h

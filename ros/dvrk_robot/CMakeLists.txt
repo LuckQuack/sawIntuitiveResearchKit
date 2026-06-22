@@ -63,7 +63,6 @@ set (
   cisstParameterTypesQt
   cisstRobot
   cisstNumerical
-  cisstQt
   )
 
 find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})

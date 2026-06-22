@@ -255,7 +255,7 @@ HapticMTMPage::HapticMTMPage(ArmConfig& config, QWidget *parent) : QWizardPage(p
     force_dimension_layout->addWidget(left_right_selector);
 
     QFormLayout* force_dimension_form = new QFormLayout();
-    force_dimension_form->setMargin(0);
+    force_dimension_form->setContentsMargins(0, 0, 0, 0);
 
     arm_name = new QLineEdit();
     force_dimension_form->addRow("Arm name:", arm_name);

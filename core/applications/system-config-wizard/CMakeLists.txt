@@ -17,7 +17,6 @@ set (REQUIRED_CISST_LIBRARIES
      cisstCommonQt
      cisstVector
      cisstParameterTypes
-     cisstQt
 )
 
 # find cisst and make sure the required libraries have been compiled
@@ -77,7 +76,11 @@ if (CISST_HAS_QT AND CISST_HAS_JSON)
        src/teleop_view.cpp
   )
 
-  qt5_add_resources (SOURCE_FILES resources/dvrk_logo.qrc)
+  if (CISST_QT_VERSION STREQUAL "6")
+    qt_add_resources (SOURCE_FILES resources/dvrk_logo.qrc)
+  else ()
+    qt5_add_resources (SOURCE_FILES resources/dvrk_logo.qrc)
+  endif ()
 
   add_executable (dvrk-system-config-wizard main.cpp ${HEADER_FILES} ${SOURCE_FILES})
   target_compile_features (dvrk-system-config-wizard PUBLIC cxx_std_17)
@@ -87,7 +90,8 @@ if (CISST_HAS_QT AND CISST_HAS_JSON)
   target_include_directories (dvrk-system-config-wizard PRIVATE ${sawIntuitiveResearchKit_INCLUDE_DIR})
 
   # link against cisst libraries (and dependencies)
-  target_link_libraries (dvrk-system-config-wizard PRIVATE ${cisst_LIBRARIES})
+  target_link_libraries (dvrk-system-config-wizard PRIVATE
+                         ${cisst_LIBRARIES})
 
   set_target_properties (dvrk-system-config-wizard PROPERTIES
                          COMPONENT sawIntuitiveResearchKit-Applications

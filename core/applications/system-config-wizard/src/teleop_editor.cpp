@@ -224,7 +224,7 @@ TeleopParametersPage::TeleopParametersPage(TeleopConfig& config, const ListModel
     QLabel* scale_display = new QLabel("0.30");
     scale_layout->addWidget(scale_display);
     scale_layout->addWidget(scale_selector);
-    scale_layout->setMargin(0);
+    scale_layout->setContentsMargins(0, 0, 0, 0);
     scale_layout->setContentsMargins(0, 0, 0, 0);
 
     QObject::connect(scale_selector, &QSlider::valueChanged, this, [this, scale_display](int value) {
@@ -260,7 +260,7 @@ TeleopParametersPage::TeleopParametersPage(TeleopConfig& config, const ListModel
         config.has_MTM_wrist_actuation = checked;
     });
 
-    haptic_mtm_form->setMargin(0);
+    haptic_mtm_form->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(haptic_mtm_details);
 
     psm_base_frame_details = new QWidget();
@@ -281,7 +281,7 @@ TeleopParametersPage::TeleopParametersPage(TeleopConfig& config, const ListModel
         }
     });
 
-    psm_base_frame_form->setMargin(0);
+    psm_base_frame_form->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(psm_base_frame_details);
 }
 
