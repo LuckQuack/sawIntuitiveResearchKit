@@ -1,0 +1,9 @@
+Mega Needle Driver 400194
+data.coupling(INDEX1,:)   = [ -1.5575 0 0 0  ]
+data.coupling(INDEX2,:)   = [ 0 1 0 0  ]
+data.coupling(INDEX3,:)   = [ 0  -0.456081081 0.368243243 0.368243243  ]
+data.coupling(INDEX4,:)   = [ 0 0  -0.736486486 0.736486486  ]
+data.joint.signal_range(UPPER_LIMIT,:)   = [ 4.45058959 1.3962634 1.3962634 0.523598776  ]
+data.joint.signal_range(LOWER_LIMIT,:)   = [ -4.45058959  -1.3962634  -1.3962634 0  ]
+data.grip.max_close_torque   = [ 0.25 ]
+data.grip.max_open_torque   = [ 0.16 ]

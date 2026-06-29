@@ -1,0 +1,15 @@
+420327-02 8MM Medium-Large Clip Applier T_3000079
+data.coupling(INDEX1,:)              = [ -1.563131313 0 0 0 ]                                                  % DEFINED IN:  T_3000079.mdef
+data.coupling(INDEX2,:)              = [ 0 1 0 0 ]                                                             % DEFINED IN:  T_3000079.mdef
+data.coupling(INDEX3,:)              = [ 0 -0.5067567568 0.5135135135 0.5135135135 ]                           % DEFINED IN:  T_3000079.mdef
+data.coupling(INDEX4,:)              = [ 0 0 0.5278987546 -0.5278987546 ]                                      % DEFINED IN:  T_3000079.mdef
+data.joint.signal_range(UPPER_LIMIT,:)  = [ 4.537856055 1.221730476 1.274090354 0.7330382858 ]                 % DEFINED IN:  T_3000079.mdef
+data.joint.signal_range(LOWER_LIMIT,:)  = [ -4.537856055 -1.221730476 -1.274090354 0 ]                         % DEFINED IN:  T_3000079.mdef
+data.dh_params(INDEX1,:)             = [ 1 0 0 1 0.467 0 1 ]                                                   % DEFINED IN:  T_3000079.mdef
+data.dh_params(INDEX2,:)             = [ 1 0 -1 0 0 -1 0 ]                                                     % DEFINED IN:  T_3000079.mdef
+data.dh_params(INDEX3,:)             = [ 1 0.0107 -1 0 0 -1 0 ]                                                % DEFINED IN:  T_3000079.mdef
+data.dh_params(INDEX4,:)             = [ 0 0 -1 0 0 0 1 ]                                                      % DEFINED IN:  T_3000079.mdef
+data.dh_params(INDEX5,:)             = [ 0 0 0 1 0 0 1 ]                                                       % DEFINED IN:  T_3000079.mdef
+data.dh_params(INDEX6,:)             = [ 0 0 0 1 0 0 1 ]                                                       % DEFINED IN:  T_3000079.mdef
+data.grip.max_close_torque           = [ 0.7 ]                                                                 % DEFINED IN:  T_3000079.mdef
+data.grip.max_open_torque            = [ 0.2 ]                                                                 % DEFINED IN:  T_3000079.mdef

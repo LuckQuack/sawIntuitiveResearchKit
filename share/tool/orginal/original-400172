@@ -1,0 +1,9 @@
+Maryland Bipolar Forceps 400172 (UID=2000006)
+data.coupling(INDEX1,:)   = [ -1.56323325 0 0 0  ]
+data.coupling(INDEX2,:)   = [ 0 1 0 0  ]
+data.coupling(INDEX3,:)   = [ 0  -0.630272953 0.457981803 0.457981803  ]
+data.coupling(INDEX4,:)   = [ 0 0  -0.915963606 0.915963606  ]
+data.joint.signal_range(UPPER_LIMIT,:)   = [ 4.45058959 1.22173048 1.57079633 0.7854  ]
+data.joint.signal_range(LOWER_LIMIT,:)   = [ -4.45058959  -1.22173048  -1.57079633 0  ]
+data.grip.max_close_torque   = [ 0.19 ]
+data.grip.max_open_torque   = [ 0.19 ]
