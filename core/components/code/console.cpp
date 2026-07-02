@@ -423,7 +423,8 @@ void dvrk::console::update_teleop_state(void)
                 teleop_proxy->state_command(std::string("align_MTM"));
             }
         } else if (!m_teleop_enabled
-                   || !m_operator_present
+                   || (!m_operator_present
+                       && (teleop_proxy->type() != dvrk::teleop_proxy::ECM))
                    || teleop_proxy->m_enabled
                    ) {
             teleop_proxy->m_enabled = false;
