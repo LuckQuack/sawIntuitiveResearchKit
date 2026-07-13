@@ -5,7 +5,7 @@
   Author(s):  Anton Deguet
   Created on: 2013-05-17
 
-  (C) Copyright 2013-2025 Johns Hopkins University (JHU), All Rights Reserved.
+  (C) Copyright 2013-2026 Johns Hopkins University (JHU), All Rights Reserved.
 
 --- begin cisst license - do not edit ---
 
@@ -119,6 +119,14 @@ void dvrk::console::post_configure(void)
         m_config->clutch.interface = "clutch";
         m_config->camera.component = m_config->IO_pedals.IO;
         m_config->camera.interface = "camera";
+        m_config->focus_minus.component = m_config->IO_pedals.IO;
+        m_config->focus_minus.interface = "focus_minus";
+        m_config->focus_plus.component = m_config->IO_pedals.IO;
+        m_config->focus_plus.interface = "focus_plus";
+        m_config->coag.component = m_config->IO_pedals.IO;
+        m_config->coag.interface = "coag";
+        m_config->bicoag.component = m_config->IO_pedals.IO;
+        m_config->bicoag.interface = "bicoag";
         // if only pedals, use coag for operator present
         if (m_config->input_type == console_input_type::PEDALS_ONLY) {
             m_config->operator_present.component = m_config->IO_pedals.IO;
@@ -372,6 +380,30 @@ void dvrk::console::camera_event_handler(const prmEventButton & _button)
     }
     update_teleop_state();
     events.camera(_button);
+}
+
+
+void dvrk::console::focus_minus_event_handler(const prmEventButton & _button)
+{
+    events.focus_minus(_button);
+}
+
+
+void dvrk::console::focus_plus_event_handler(const prmEventButton & _button)
+{
+    events.focus_plus(_button);
+}
+
+
+void dvrk::console::coag_event_handler(const prmEventButton & _button)
+{
+    events.coag(_button);
+}
+
+
+void dvrk::console::bicoag_event_handler(const prmEventButton & _button)
+{
+    events.bicoag(_button);
 }
 
 

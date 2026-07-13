@@ -655,72 +655,68 @@ bool dvrk::system::add_console_interfaces(std::shared_ptr<dvrk::console> _consol
         return false;
     }
 
+    // helpers to avoid repeating the same pattern for each pedal
+    // add_pedal_required: MTS_REQUIRED always adds the connection;
+    //                     MTS_OPTIONAL only adds it when component/interface are non-empty
+    auto add_pedal_required = [&](const std::string & pedal_name,
+                                   auto handler,
+                                   const auto & cfg,
+                                   mtsRequiredType required_type) -> bool {
+        auto * itf = AddInterfaceRequired(_console->m_name + "/required_" + pedal_name,
+                                          required_type);
+        if (!itf) {
+            CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add "
+                                     << (required_type == MTS_OPTIONAL ? "optional " : "")
+                                     << pedal_name << " required interface for console \""
+                                     << _console->m_name << "\"" << std::endl;
+            return false;
+        }
+        itf->AddEventHandlerWrite(handler, _console.get(), "Button");
+        if (required_type == MTS_OPTIONAL) {
+            if (!cfg.component.empty() && !cfg.interface.empty()) {
+                m_connections.Add(this->GetName(), _console->m_name + "/required_" + pedal_name,
+                                  cfg.component, cfg.interface);
+            }
+        } else {
+            m_connections.Add(this->GetName(), _console->m_name + "/required_" + pedal_name,
+                              cfg.component, cfg.interface);
+        }
+        return true;
+    };
+
+    // add_pedal_provided: add provided interface and register the event write
+    auto add_pedal_provided = [&](const std::string & pedal_name, auto & event) -> bool {
+        auto * itf = this->AddInterfaceProvided(_console->m_name + "/" + pedal_name);
+        if (!itf) {
+            CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add "
+                                     << pedal_name << " provided interface for console \""
+                                     << _console->m_name << "\"" << std::endl;
+            return false;
+        }
+        itf->AddEventWrite(event, "Button", prmEventButton());
+        return true;
+    };
+
     // inputs
     if (_console->m_config->input_type != console_input_type::SIMULATED) {
-        mtsInterfaceRequired * interface_required;
-        // clutch
-        interface_required = AddInterfaceRequired(_console->m_name + "/required_clutch");
-        if (interface_required) {
-            interface_required->AddEventHandlerWrite(&console::clutch_event_handler, _console.get(), "Button");
-        } else {
-            CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add clutch required interface for console \""
-                                     << _console->m_name << "\"" << std::endl;
-            return false;
-        }
-        m_connections.Add(this->GetName(), _console->m_name + "/required_clutch",
-                          _console->m_config->clutch.component,
-                          _console->m_config->clutch.interface);
-        // camera
-        interface_required = AddInterfaceRequired(_console->m_name + "/required_camera");
-        if (interface_required) {
-            interface_required->AddEventHandlerWrite(&console::camera_event_handler, _console.get(), "Button");
-        } else {
-            CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add camera required interface for console \""
-                                     << _console->m_name << "\"" << std::endl;
-            return false;
-        }
-        m_connections.Add(this->GetName(), _console->m_name + "/required_camera",
-                          _console->m_config->camera.component,
-                          _console->m_config->camera.interface);
-        // operator_present
-        interface_required = AddInterfaceRequired(_console->m_name + "/required_operator_present");
-        if (interface_required) {
-            interface_required->AddEventHandlerWrite(&console::operator_present_event_handler, _console.get(), "Button");
-        } else {
-            CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add operator_present required interface for console \""
-                                     << _console->m_name << "\"" << std::endl;
-            return false;
-        }
-        m_connections.Add(this->GetName(), _console->m_name + "/required_operator_present",
-                          _console->m_config->operator_present.component,
-                          _console->m_config->operator_present.interface);
+        if (!add_pedal_required("clutch",           &console::clutch_event_handler,           _console->m_config->clutch,           MTS_REQUIRED)) return false;
+        if (!add_pedal_required("camera",           &console::camera_event_handler,           _console->m_config->camera,           MTS_REQUIRED)) return false;
+        // optional foot pedal tray inputs
+        if (!add_pedal_required("focus_minus",      &console::focus_minus_event_handler,      _console->m_config->focus_minus,      MTS_OPTIONAL)) return false;
+        if (!add_pedal_required("focus_plus",       &console::focus_plus_event_handler,       _console->m_config->focus_plus,       MTS_OPTIONAL)) return false;
+        if (!add_pedal_required("coag",             &console::coag_event_handler,             _console->m_config->coag,             MTS_OPTIONAL)) return false;
+        if (!add_pedal_required("bicoag",           &console::bicoag_event_handler,           _console->m_config->bicoag,           MTS_OPTIONAL)) return false;
+        if (!add_pedal_required("operator_present", &console::operator_present_event_handler, _console->m_config->operator_present, MTS_REQUIRED)) return false;
     }
 
     // propagate inputs
-    mtsInterfaceProvided * interface_provided = this->AddInterfaceProvided(_console->m_name + "/clutch");
-    if (interface_provided) {
-        interface_provided->AddEventWrite(_console->events.clutch, "Button", prmEventButton());
-    } else {
-        CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add clutch provided interface for _console \""
-                                 << _console->m_name << "\"" << std::endl;
-        return false;
-    }
-    interface_provided = this->AddInterfaceProvided(_console->m_name + "/camera");
-    if (interface_provided) {
-        interface_provided->AddEventWrite(_console->events.camera, "Button", prmEventButton());
-    } else {
-        CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add camera provided interface for console \""
-                                 << _console->m_name << "\"" << std::endl;
-        return false;
-    }
-    interface_provided = this->AddInterfaceProvided(_console->m_name + "/operator_present");
-    if (interface_provided) {
-        interface_provided->AddEventWrite(_console->events.operator_present, "Button", prmEventButton());
-    } else {
-        CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add operator_present provided interface for console \""
-                                 << _console->m_name << "\"" << std::endl;
-        return false;
-    }
+    if (!add_pedal_provided("clutch",           _console->events.clutch))           return false;
+    if (!add_pedal_provided("camera",           _console->events.camera))           return false;
+    if (!add_pedal_provided("focus_minus",      _console->events.focus_minus))      return false;
+    if (!add_pedal_provided("focus_plus",       _console->events.focus_plus))       return false;
+    if (!add_pedal_provided("coag",             _console->events.coag))             return false;
+    if (!add_pedal_provided("bicoag",           _console->events.bicoag))           return false;
+    if (!add_pedal_provided("operator_present", _console->events.operator_present)) return false;
     return true;
 }
 

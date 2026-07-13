@@ -364,7 +364,9 @@ void dvrk::system_ROS::add_topics_console(const std::string & _name)
     events_bridge().AddPublisherFromEventWrite<std::string, CISST_RAL_MSG(std_msgs, String)>
         (interface_name, "teleop_unselected",
          ros_namespace + "teleop/unselected");
-    const auto events = std::list<std::string>({"operator_present", "clutch", "camera"});
+    const auto events = std::list<std::string>({"operator_present", "clutch", "camera",
+                                                "focus_minus", "focus_plus",
+                                                "coag", "bicoag"});
     for (const auto & event : events) {
         events_bridge().AddPublisherFromEventWrite<prmEventButton, CISST_RAL_MSG(sensor_msgs, Joy)>
             (_name + "_" + event, "Button",

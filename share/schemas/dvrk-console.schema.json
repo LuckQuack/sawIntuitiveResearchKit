@@ -117,6 +117,30 @@
             "$ref": "cisst-terminal.schema.json"
         },
 
+        "focus_minus": {
+            "type": "object",
+            "description": "Optional CISST component and interface providing the focus-minus pedal signal. This is inferred from `IO_pedals` for `PEDALS_*` input types.",
+            "$ref": "cisst-terminal.schema.json"
+        },
+
+        "focus_plus": {
+            "type": "object",
+            "description": "Optional CISST component and interface providing the focus-plus pedal signal. This is inferred from `IO_pedals` for `PEDALS_*` input types.",
+            "$ref": "cisst-terminal.schema.json"
+        },
+
+        "coag": {
+            "type": "object",
+            "description": "Optional CISST component and interface providing the coag pedal signal. This is inferred from `IO_pedals` for `PEDALS_*` input types.",
+            "$ref": "cisst-terminal.schema.json"
+        },
+
+        "bicoag": {
+            "type": "object",
+            "description": "Optional CISST component and interface providing the bicoag pedal signal. This is inferred from `IO_pedals` for `PEDALS_*` input types.",
+            "$ref": "cisst-terminal.schema.json"
+        },
+
         "operator_present": {
             "type": "object",
             "description": "Name of the CISST component used to provide the operator_present signal.\nThis should be specified if and only if the `input_type` is set to `COMPONENTS`.",

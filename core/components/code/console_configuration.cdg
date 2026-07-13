@@ -96,6 +96,34 @@ class {
     }
 
     member {
+        name focus_minus;
+        type dvrk::terminal;
+        visibility public;
+        default dvrk::terminal();
+    }
+
+    member {
+        name focus_plus;
+        type dvrk::terminal;
+        visibility public;
+        default dvrk::terminal();
+    }
+
+    member {
+        name coag;
+        type dvrk::terminal;
+        visibility public;
+        default dvrk::terminal();
+    }
+
+    member {
+        name bicoag;
+        type dvrk::terminal;
+        visibility public;
+        default dvrk::terminal();
+    }
+
+    member {
         name operator_present;
         type dvrk::terminal;
         visibility public;

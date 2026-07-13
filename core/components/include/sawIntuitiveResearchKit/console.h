@@ -84,6 +84,10 @@ namespace dvrk {
 
         void clutch_event_handler(const prmEventButton & _button);
         void camera_event_handler(const prmEventButton & _button);
+        void focus_minus_event_handler(const prmEventButton & _button);
+        void focus_plus_event_handler(const prmEventButton & _button);
+        void coag_event_handler(const prmEventButton & _button);
+        void bicoag_event_handler(const prmEventButton & _button);
         void operator_present_event_handler(const prmEventButton & _button);
 
         // optional component used for the head sensor (based on input type)
@@ -93,6 +97,10 @@ namespace dvrk {
         struct {
             mtsFunctionWrite clutch;
             mtsFunctionWrite camera;
+            mtsFunctionWrite focus_minus;
+            mtsFunctionWrite focus_plus;
+            mtsFunctionWrite coag;
+            mtsFunctionWrite bicoag;
             mtsFunctionWrite operator_present;
             mtsFunctionWrite teleop_enabled;
             mtsFunctionWrite scale;
