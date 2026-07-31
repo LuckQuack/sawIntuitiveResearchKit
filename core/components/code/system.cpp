@@ -606,6 +606,10 @@ bool dvrk::system::add_arm_interfaces(std::shared_ptr<dvrk::arm_proxy> _arm)
 
 bool dvrk::system::add_console_interfaces(std::shared_ptr<dvrk::console> _console)
 {
+    const auto has_foot_pedal = [](const auto & cfg) {
+        return !cfg.component.empty() && !cfg.interface.empty();
+    };
+
     // main interface
     _console->m_interface_provided = this->AddInterfaceProvided(_console->m_name);
     if (_console->m_interface_provided) {
@@ -626,6 +630,30 @@ bool dvrk::system::add_console_interfaces(std::shared_ptr<dvrk::console> _consol
                              "emulate_clutch", prmEventButton());
         itf->AddCommandWrite(&console::camera_event_handler, _console.get(),
                              "emulate_camera", prmEventButton());
+        if (has_foot_pedal(_console->m_config->focus_minus)) {
+            itf->AddCommandWrite(&console::focus_minus_event_handler, _console.get(),
+                                 "emulate_focus_minus", prmEventButton());
+            itf->AddEventWrite(_console->events.focus_minus,
+                               "focus_minus", prmEventButton());
+        }
+        if (has_foot_pedal(_console->m_config->focus_plus)) {
+            itf->AddCommandWrite(&console::focus_plus_event_handler, _console.get(),
+                                 "emulate_focus_plus", prmEventButton());
+            itf->AddEventWrite(_console->events.focus_plus,
+                               "focus_plus", prmEventButton());
+        }
+        if (has_foot_pedal(_console->m_config->coag)) {
+            itf->AddCommandWrite(&console::coag_event_handler, _console.get(),
+                                 "emulate_coag", prmEventButton());
+            itf->AddEventWrite(_console->events.coag,
+                               "coag", prmEventButton());
+        }
+        if (has_foot_pedal(_console->m_config->bicoag)) {
+            itf->AddCommandWrite(&console::bicoag_event_handler, _console.get(),
+                                 "emulate_bicoag", prmEventButton());
+            itf->AddEventWrite(_console->events.bicoag,
+                               "bicoag", prmEventButton());
+        }
         itf->AddEventWrite(_console->events.teleop_enabled,
                            "teleop_enabled", false);
         itf->AddEventWrite(_console->events.scale,
@@ -685,7 +713,12 @@ bool dvrk::system::add_console_interfaces(std::shared_ptr<dvrk::console> _consol
     };
 
     // add_pedal_provided: add provided interface and register the event write
-    auto add_pedal_provided = [&](const std::string & pedal_name, auto & event) -> bool {
+    auto add_pedal_provided = [&](const std::string & pedal_name,
+                                  auto & event,
+                                  bool enabled = true) -> bool {
+        if (!enabled) {
+            return true;
+        }
         auto * itf = this->AddInterfaceProvided(_console->m_name + "/" + pedal_name);
         if (!itf) {
             CMN_LOG_CLASS_INIT_ERROR << "add_console_interfaces: failed to add "
@@ -712,10 +745,14 @@ bool dvrk::system::add_console_interfaces(std::shared_ptr<dvrk::console> _consol
     // propagate inputs
     if (!add_pedal_provided("clutch",           _console->events.clutch))           return false;
     if (!add_pedal_provided("camera",           _console->events.camera))           return false;
-    if (!add_pedal_provided("focus_minus",      _console->events.focus_minus))      return false;
-    if (!add_pedal_provided("focus_plus",       _console->events.focus_plus))       return false;
-    if (!add_pedal_provided("coag",             _console->events.coag))             return false;
-    if (!add_pedal_provided("bicoag",           _console->events.bicoag))           return false;
+    if (!add_pedal_provided("focus_minus",      _console->events.focus_minus,
+                            has_foot_pedal(_console->m_config->focus_minus)))       return false;
+    if (!add_pedal_provided("focus_plus",       _console->events.focus_plus,
+                            has_foot_pedal(_console->m_config->focus_plus)))        return false;
+    if (!add_pedal_provided("coag",             _console->events.coag,
+                            has_foot_pedal(_console->m_config->coag)))              return false;
+    if (!add_pedal_provided("bicoag",           _console->events.bicoag,
+                            has_foot_pedal(_console->m_config->bicoag)))            return false;
     if (!add_pedal_provided("operator_present", _console->events.operator_present)) return false;
     return true;
 }

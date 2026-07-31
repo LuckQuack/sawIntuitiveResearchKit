@@ -337,6 +337,15 @@ void dvrk::system_ROS::add_topics_console(const std::string & _name)
     CMN_LOG_CLASS_INIT_VERBOSE << "add_topics_console called for " << _name << std::endl;
     const std::string & interface_name = _name;
     const std::string ros_namespace = _name + "/";
+    const auto console_iter = m_system->m_consoles.find(_name);
+    if (console_iter == m_system->m_consoles.end()) {
+        CMN_LOG_CLASS_INIT_ERROR << "add_topics_console: can't find console " << _name << std::endl;
+        return;
+    }
+    const auto has_foot_pedal = [](const auto & cfg) {
+        return !cfg.component.empty() && !cfg.interface.empty();
+    };
+    const auto & config = *(console_iter->second->m_config);
 
     subscribers_bridge().AddSubscriberToCommandWrite<bool, CISST_RAL_MSG(std_msgs, Bool)>
         (interface_name, "teleop_enable",
@@ -364,19 +373,31 @@ void dvrk::system_ROS::add_topics_console(const std::string & _name)
     events_bridge().AddPublisherFromEventWrite<std::string, CISST_RAL_MSG(std_msgs, String)>
         (interface_name, "teleop_unselected",
          ros_namespace + "teleop/unselected");
-    const auto events = std::list<std::string>({"operator_present", "clutch", "camera",
-                                                "focus_minus", "focus_plus",
-                                                "coag", "bicoag"});
-    for (const auto & event : events) {
+    const auto bridge_console_button = [&](const std::string & event) {
         events_bridge().AddPublisherFromEventWrite<prmEventButton, CISST_RAL_MSG(sensor_msgs, Joy)>
             (_name + "_" + event, "Button",
              ros_namespace + event);
         m_connections.Add(events_bridge().GetName(), _name + "_" + event,
                           m_system->GetName(), _name + "/" + event);
-        // emulate subscribers
         subscribers_bridge().AddSubscriberToCommandWrite<prmEventButton, CISST_RAL_MSG(sensor_msgs, Joy)>
             (interface_name, "emulate_" + event,
              ros_namespace + "emulate_" + event);
+    };
+
+    bridge_console_button("operator_present");
+    bridge_console_button("clutch");
+    bridge_console_button("camera");
+    if (has_foot_pedal(config.focus_minus)) {
+        bridge_console_button("focus_minus");
+    }
+    if (has_foot_pedal(config.focus_plus)) {
+        bridge_console_button("focus_plus");
+    }
+    if (has_foot_pedal(config.coag)) {
+        bridge_console_button("coag");
+    }
+    if (has_foot_pedal(config.bicoag)) {
+        bridge_console_button("bicoag");
     }
 
     m_connections.Add(subscribers_bridge().GetName(), interface_name,
@@ -601,17 +622,6 @@ void dvrk::system_ROS::add_topics_teleop_ECM(const std::string & _name)
     cisst_ral::clean_namespace(ros_namespace);
     ros_namespace += "/";
 
-    // messages
-    events_bridge().AddLogFromEventWrite(_name + "_log", "error",
-                                         mtsROSEventWriteLog::ROS_LOG_ERROR);
-    events_bridge().AddLogFromEventWrite(_name + "_log", "warning",
-                                         mtsROSEventWriteLog::ROS_LOG_WARN);
-    events_bridge().AddLogFromEventWrite(_name + "_log", "status",
-                                         mtsROSEventWriteLog::ROS_LOG_INFO);
-    // connect
-    m_connections.Add(events_bridge().GetName(), _name + "_log",
-                      _name, "Setting");
-
     // events
     events_bridge().AddPublisherFromEventWrite<std::string, CISST_RAL_MSG(std_msgs, String)>
         (_name, "desired_state", ros_namespace + "desired_state");
@@ -644,17 +654,6 @@ void dvrk::system_ROS::add_topics_teleop_PSM(const std::string & _name)
     std::string ros_namespace = _name;
     cisst_ral::clean_namespace(ros_namespace);
     ros_namespace += "/";
-
-    // messages
-    events_bridge().AddLogFromEventWrite(_name + "_log", "error",
-                                         mtsROSEventWriteLog::ROS_LOG_ERROR);
-    events_bridge().AddLogFromEventWrite(_name + "_log", "warning",
-                                         mtsROSEventWriteLog::ROS_LOG_WARN);
-    events_bridge().AddLogFromEventWrite(_name + "_log", "status",
-                                         mtsROSEventWriteLog::ROS_LOG_INFO);
-    // connect
-    m_connections.Add(events_bridge().GetName(), _name + "_log",
-                      _name, "Setting");
 
     // publisher
     m_pub_bridge->AddPublisherFromCommandRead<vctMatRot3, CISST_RAL_MSG(geometry_msgs, QuaternionStamped)>
