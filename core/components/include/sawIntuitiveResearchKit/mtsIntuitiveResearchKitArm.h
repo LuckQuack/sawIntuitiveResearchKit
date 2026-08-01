@@ -542,6 +542,10 @@ class CISST_EXPORT mtsIntuitiveResearchKitArm: public mtsTaskPeriodic
 
     // flag to determine if the arm is running in calibration mode, i.e. turn off checks using potentiometers
     bool m_calibration_mode = false;
+
+    // Cleanup can be requested by the system component before the component
+    // manager stops RobotIO.  Keep the task cleanup idempotent in that case.
+    bool m_cleanup_done = false;
 };
 
 CMN_DECLARE_SERVICES_INSTANTIATION(mtsIntuitiveResearchKitArm);

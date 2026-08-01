@@ -32,6 +32,7 @@ http://www.cisst.org/cisst/license.txt.
 #include <sawIntuitiveResearchKit/sawIntuitiveResearchKitConfig.h>
 #include <sawIntuitiveResearchKit/sawIntuitiveResearchKitRevision.h>
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKit.h>
+#include <sawIntuitiveResearchKit/mtsIntuitiveResearchKitArm.h>
 #include <sawIntuitiveResearchKit/IO_proxy.h>
 #include <sawIntuitiveResearchKit/arm_proxy.h>
 #include <sawIntuitiveResearchKit/console.h>
@@ -500,6 +501,16 @@ void dvrk::system::Run(void)
 
 void dvrk::system::Cleanup(void)
 {
+    // RobotIO components are registered before arm components and are
+    // therefore cleaned up first by the component manager.  Run arm cleanup
+    // here, while RobotIO is still available, so the shutdown LED pattern is
+    // transmitted to the hardware.
+    for (auto & iter : m_arm_proxies) {
+        if (iter.second->m_arm) {
+            iter.second->m_arm->Cleanup();
+        }
+    }
+
     CMN_LOG_CLASS_INIT_VERBOSE << "Cleanup" << std::endl;
 }
 

@@ -815,6 +815,7 @@ void mtsIntuitiveResearchKitArm::ConfigureDH(const std::string & filename)
 
 void mtsIntuitiveResearchKitArm::Startup(void)
 {
+    m_cleanup_done = false;
     SetDesiredState("DISABLED");
     trajectory_j_set_ratio(mtsIntuitiveResearchKit::JointTrajectory::ratio);
 }
@@ -837,6 +838,11 @@ void mtsIntuitiveResearchKitArm::Run(void)
 
 void mtsIntuitiveResearchKitArm::Cleanup(void)
 {
+    if (m_cleanup_done) {
+        return;
+    }
+    m_cleanup_done = true;
+
     // engage brakes
     if (has_brakes()) {
         IO.BrakeEngage();
