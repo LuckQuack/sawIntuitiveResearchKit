@@ -84,7 +84,7 @@ public:
     enum KinematicType {
         MTM_ITERATIVE,
         MTM_CLOSED
-    } mKinematicType = MTM_ITERATIVE;
+    } mKinematicType = MTM_CLOSED;
 
     virtual void CreateManipulator(void) override;
     virtual void Init(void) override;
