@@ -73,9 +73,9 @@ if (ROS_VERSION EQUAL 2)
   target_link_libraries (
     hrsv_widget
     rclcpp::rclcpp
-    std_msgs::std_msgs__rosidl_generator_cpp
-    diagnostic_msgs::diagnostic_msgs__rosidl_generator_cpp
-    sensor_msgs::sensor_msgs__rosidl_generator_cpp
+    std_msgs::std_msgs__rosidl_typesupport_cpp
+    diagnostic_msgs::diagnostic_msgs__rosidl_typesupport_cpp
+    sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
     )
   ament_package ()
 endif ()
