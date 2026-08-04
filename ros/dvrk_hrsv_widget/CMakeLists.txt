@@ -70,9 +70,12 @@ install (TARGETS hrsv_widget
   INCLUDES DESTINATION include)
 
 if (ROS_VERSION EQUAL 2)
-  ament_target_dependencies (
+  target_link_libraries (
     hrsv_widget
-    ${ROS2_depends}
+    rclcpp::rclcpp
+    std_msgs::std_msgs__rosidl_generator_cpp
+    diagnostic_msgs::diagnostic_msgs__rosidl_generator_cpp
+    sensor_msgs::sensor_msgs__rosidl_generator_cpp
     )
   ament_package ()
 endif ()
