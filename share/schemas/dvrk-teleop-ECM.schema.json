@@ -50,6 +50,18 @@
                     "type": "number",
                     "exclusiveMinimum": 0.0,
                     "maximum": 1.0
+                },
+                "check_MTMs_workspace": {
+                    "description": "Check MTML and MTMR positions against the standard surgeon-console workspace before enabling ECM teleoperation.",
+                    "type": "boolean",
+                    "default": true
+                },
+                "haptic_feedback_ratio": {
+                    "description": "Scale factor applied to the ECM teleoperation wrench sent to MTML and MTMR.",
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0,
+                    "default": 1.0
                 }
             }
         }

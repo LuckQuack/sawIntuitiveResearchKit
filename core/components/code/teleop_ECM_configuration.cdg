@@ -23,4 +23,16 @@ class {
         visibility public;
         default 0.0;
     }
+    member {
+        name check_MTMs_workspace;
+        type bool;
+        visibility public;
+        default true;
+    }
+    member {
+        name haptic_feedback_ratio;
+        type double;
+        visibility public;
+        default 1.0;
+    }
 }
