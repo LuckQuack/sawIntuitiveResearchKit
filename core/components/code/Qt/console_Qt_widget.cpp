@@ -45,6 +45,12 @@ http://www.cisst.org/cisst/license.txt.
 #include <QLabel>
 #include <QPixmap>
 #include <QShortcut>
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#define DVRK_QT_KEY(modifier, key) (modifier | key)
+#else
+#define DVRK_QT_KEY(modifier, key) (modifier + key)
+#endif
 #include <QDoubleSpinBox>
 #include <QSlider>
 #include <QRadioButton>
@@ -240,8 +246,8 @@ void dvrk::console_Qt_widget::setupUi(void)
     QCBTeleopEnable = new QCheckBox("");
     QPBTeleopEnable->setToolTip("ctrl + T to start\nctrl + S to stop");
     QCBTeleopEnable->setToolTip("ctrl + T to start\nctrl + S to stop");
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_T), this, SLOT(slot_teleop_start()));
-    new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_S), this, SLOT(slot_teleop_stop()));
+    new QShortcut(QKeySequence(DVRK_QT_KEY(Qt::CTRL, Qt::Key_T)), this, SLOT(slot_teleop_start()));
+    new QShortcut(QKeySequence(DVRK_QT_KEY(Qt::CTRL, Qt::Key_S)), this, SLOT(slot_teleop_stop()));
     // set default to false
     slot_teleop_enabled_event_handler(false);
     teleopEnableLayout->addWidget(QCBTeleopEnable);

@@ -210,7 +210,7 @@ void dvrk::arm_proxy::create_arm()
                 mtsIntuitiveResearchKitMTM * mtm = dynamic_cast<mtsIntuitiveResearchKitMTM *>(component);
                 if (mtm) {
                     std::cerr << CMN_LOG_DETAILS << " is this risky?" << std::endl;
-                    m_arm = std::shared_ptr<mtsIntuitiveResearchKitMTM>(mtm, [](mtsIntuitiveResearchKitMTM * p){ ; });
+                    m_arm = std::shared_ptr<mtsIntuitiveResearchKitMTM>(mtm, [](mtsIntuitiveResearchKitMTM *){ });
                 } else {
                     CMN_LOG_INIT_ERROR << "dvrk::arm_proxy::ConfigureArm: component \""
                                        << m_name << "\" doesn't seem to be derived from mtsIntuitiveResearchKitMTM."
