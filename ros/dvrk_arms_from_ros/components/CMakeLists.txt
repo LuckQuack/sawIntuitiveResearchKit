@@ -51,7 +51,6 @@ endif (catkin_FOUND)
 # find cisst and make sure the required libraries have been compiled
 set (REQUIRED_CISST_LIBRARIES
   cisstCommon
-  cisstCommonXML
   cisstCommonQt
   cisstVector
   cisstOSAbstraction
@@ -96,4 +95,3 @@ if (ROS_VERSION EQUAL 2)
     )
   ament_package ()
 endif ()
-
