@@ -41,7 +41,7 @@ set (REQUIRED_CISST_LIBRARIES
   cisstRobot
   cisstNumerical)
 
-find_package (cisst 1.5.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.5 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 # make sure CISST_USE_SI_UNITS is defined and set to 1
 if (NOT DEFINED CISST_USE_SI_UNITS)
