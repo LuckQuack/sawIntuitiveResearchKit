@@ -10,7 +10,7 @@
 # --- end cisst license ---
 
 cmake_minimum_required(VERSION 3.10)
-project (saw_intuitive_research_kit_example_bilateral_teleop VERSION 2.4.0)
+project (saw_intuitive_research_kit_example_bilateral_teleop VERSION 2.5.0)
 
 # first test for ROS1
 set (ROS1_depends
@@ -66,7 +66,7 @@ cisst_set_output_path ()
 
 # sawIntuitiveResearchKit has been compiled within cisst, we should
 # find it automatically
-find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
+find_package(sawIntuitiveResearchKit 2.5.0 REQUIRED)
 
 if (sawIntuitiveResearchKit_FOUND)
 

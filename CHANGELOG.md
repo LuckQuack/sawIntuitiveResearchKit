@@ -1,6 +1,30 @@
 Change log
 ==========
 
+2.5.0 (TBD)
+===========
+
+* New features:
+  * ECM teleoperation supports an endoscope-roll offset and alternate master arms, including Haply devices.
+  * Added custom cannula-depth configuration; identity transforms are now accepted in base-frame configuration files.
+  * Added native Si SUJ ESSJ support, with updated full-system and simulated patient-cart configurations.
+  * Added optional foot-pedal support when using the default pedal tray and Haply test configurations.
+  * Extended the system configuration wizard with MTM x-offset support and Windows build support.
+  * Changed the default MTM kinematic model to closed IK.
+* API changes:
+  * Adopted `prmSimulationType` throughout the system; simulation is now an enum rather than a boolean.
+  * Delegated `set_base_frame` handling to the generic CRTK bridge and updated the ROS system bridge accordingly.
+* Bug fixes:
+  * Prevented unnecessary MTM reorientation when PSM orientation has not changed.
+  * Improved teleoperation state handling, including preventing ECM teleoperation when no operator is present.
+  * Fixed gravity-compensation behavior for Classic ECMs and updated stapler configuration and parameter approximations.
+  * Removed a duplicate `Apply` call from the ROS `dvrk_system` application and improved cleanup handling.
+* Build:
+  * Updated CMake support for current cisst, added Qt6 and non-Qt builds, and removed cisstCommonXML dependencies.
+  * Added missing colcon dependencies and improved Windows compatibility.
+* Documentation:
+  * Added scripts to verify DH parameters.
+
 2.4.0 (2026-01-07)
 ==================
 

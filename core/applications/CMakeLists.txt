@@ -10,7 +10,7 @@
 # --- end cisst license ---
 
 cmake_minimum_required (VERSION 3.16)
-project (sawIntuitiveResearchKitApplications VERSION 2.4.0)
+project (sawIntuitiveResearchKitApplications VERSION 2.5.0)
 
 project (sawIntuitiveResearchKitApplications)
 
@@ -44,7 +44,7 @@ if (CISST_HAS_QT)
 endif ()
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.5.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 # catkin/ROS paths
 cisst_is_catkin_build (sawIntuitiveResearchKitExamples_IS_CATKIN_BUILT)
@@ -53,10 +53,10 @@ if (sawIntuitiveResearchKitExamples_IS_CATKIN_BUILT)
 endif ()
 
 # saw components have been compiled within cisst, we should find them automatically
-find_package (sawRobotIO1394          2.4.0 REQUIRED)
+find_package (sawRobotIO1394          2.5.0 REQUIRED)
 find_package (sawControllers          2.3.0 REQUIRED)
-find_package (sawIntuitiveResearchKit 2.4.0 REQUIRED)
-find_package (sawTextToSpeech         1.4.1 REQUIRED)
+find_package (sawIntuitiveResearchKit 2.5.0 REQUIRED)
+find_package (sawTextToSpeech         1.5.0 REQUIRED)
 
 if (sawRobotIO1394_FOUND AND sawControllers_FOUND
     AND sawIntuitiveResearchKit_FOUND AND sawTextToSpeech_FOUND)
@@ -78,6 +78,7 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND
 
     # main program used to configure PID
     add_executable (sawIntuitiveResearchKitPID main_PID.cpp)
+    add_dependencies (sawIntuitiveResearchKitPID sawIntuitiveResearchKitFullRevision)
     set_target_properties (sawIntuitiveResearchKitPID PROPERTIES
                            COMPONENT sawIntuitiveResearchKit-Applications
                            FOLDER "sawIntuitiveResearchKit")
@@ -99,6 +100,7 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND
 
       # main program used to configure Console
       add_executable (sawIntuitiveResearchKitSystem main_system.cpp)
+      add_dependencies (sawIntuitiveResearchKitSystem sawIntuitiveResearchKitFullRevision)
       set_target_properties (sawIntuitiveResearchKitSystem PROPERTIES
                              COMPONENT sawIntuitiveResearchKit-Applications
                              FOLDER "sawIntuitiveResearchKit")

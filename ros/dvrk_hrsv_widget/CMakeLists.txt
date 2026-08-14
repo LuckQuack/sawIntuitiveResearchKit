@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.16)
 if (POLICY CMP0144)
   cmake_policy (SET CMP0144 NEW)
 endif ()
-project (dvrk_hrsv_widget VERSION 2.4.0)
+project (dvrk_hrsv_widget VERSION 2.5.0)
 
 # first test for ROS1
 set (ROS1_depends roscpp std_msgs diagnostic_msgs sensor_msgs)

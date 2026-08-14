@@ -20,8 +20,8 @@ set (REQUIRED_CISST_LIBRARIES
 )
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
-find_package (sawIntuitiveResearchKit 2.4.0 REQUIRED)
+find_package (cisst 1.5.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (sawIntuitiveResearchKit 2.5.0 REQUIRED)
 
 
 
@@ -83,6 +83,9 @@ if (CISST_HAS_QT AND CISST_HAS_JSON)
   endif ()
 
   add_executable (dvrk-system-config-wizard main.cpp ${HEADER_FILES} ${SOURCE_FILES})
+  if (TARGET sawIntuitiveResearchKitFullRevision)
+    add_dependencies (dvrk-system-config-wizard sawIntuitiveResearchKitFullRevision)
+  endif ()
   target_compile_features (dvrk-system-config-wizard PUBLIC cxx_std_17)
 
   target_include_directories (dvrk-system-config-wizard PRIVATE include)

@@ -10,7 +10,7 @@
 # --- end cisst license ---
 
 cmake_minimum_required(VERSION 3.16)
-project (saw_intuitive_research_kit_example_psm_derived VERSION 2.4.0)
+project (saw_intuitive_research_kit_example_psm_derived VERSION 2.5.0)
 
 # first test for ROS1
 set (ROS1_depends
@@ -68,7 +68,7 @@ cisst_set_output_path ()
 
 # sawIntuitiveResearchKit has been compiled within cisst, we should
 # find it automatically
-find_package(sawIntuitiveResearchKit 2.4.0 REQUIRED)
+find_package(sawIntuitiveResearchKit 2.5.0 REQUIRED)
 
 # use the Qt major version selected by cisst
 if (NOT (CISST_QT_VERSION STREQUAL "6" OR CISST_QT_VERSION STREQUAL "5"))

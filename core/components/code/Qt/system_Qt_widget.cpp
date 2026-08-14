@@ -28,6 +28,7 @@ http://www.cisst.org/cisst/license.txt.
 #include <cisstMultiTask/mtsManagerLocal.h>
 #include <sawIntuitiveResearchKit/mtsIntuitiveResearchKit.h>
 #include <sawIntuitiveResearchKit/sawIntuitiveResearchKitRevision.h>
+#include <sawIntuitiveResearchKit/sawIntuitiveResearchKitFullRevision.h>
 #include <sawIntuitiveResearchKit/system_Qt_widget.h>
 
 #include <QMessageBox>
@@ -279,7 +280,7 @@ void dvrk::system_Qt_widget::setupUi(void)
     setLayout(mainLayout);
 
     std::string title = "dVRK ";
-    title.append(sawIntuitiveResearchKit_VERSION);
+    title.append(SAW_INTUITIVE_RESEARCH_KIT_FULL_REVISION);
     title.append(" / ");
     title.append(CISST_FULL_REVISION);
     setWindowTitle(title.c_str());

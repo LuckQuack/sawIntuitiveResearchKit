@@ -10,7 +10,7 @@
 # --- end cisst license ---
 
 cmake_minimum_required (VERSION 3.16)
-project (dvrk_robot VERSION 2.4.0)
+project (dvrk_robot VERSION 2.5.0)
 
 # first test for ROS1
 set (ROS1_depends cisst_ros_crtk saw_robot_io_1394_ros saw_controllers_ros roscpp roslib)
@@ -64,15 +64,15 @@ set (
   cisstNumerical
   )
 
-find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.5.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 # set paths
 cisst_set_output_path ()
 
 # sawRobotIO1394 has been compiled within cisst, we should find it automatically
-find_package (sawRobotIO1394          2.4.0 REQUIRED)
+find_package (sawRobotIO1394          2.5.0 REQUIRED)
 find_package (sawControllers          2.3.0 REQUIRED)
-find_package (sawIntuitiveResearchKit 2.4.0 REQUIRED)
+find_package (sawIntuitiveResearchKit 2.5.0 REQUIRED)
 
 include_directories (
   ${dvrk_robot_SOURCE_DIR}/include

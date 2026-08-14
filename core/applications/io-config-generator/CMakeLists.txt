@@ -10,10 +10,10 @@
 # --- end cisst license ---
 
 cmake_minimum_required (VERSION 3.16)
-project (sawIntuitiveResearchKitConfigGenerator VERSION 2.4.0)
+project (sawIntuitiveResearchKitConfigGenerator VERSION 2.5.0)
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.5.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 # catkin/ROS paths
 cisst_set_output_path ()
@@ -33,4 +33,3 @@ install (
   FILES ${sawIntuitiveResearchKitConfigGenerator_FILES}
   COMPONENT sawIntuitiveResearchKit-Applications
   DESTINATION bin)
-

@@ -20,7 +20,7 @@ set (REQUIRED_CISST_LIBRARIES
   cisstParameterTypes)
 
 # find cisst and make sure the required libraries have been compiled
-find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.5.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 # catkin/ROS paths
 cisst_is_catkin_build (sawIntuitiveResearchKitGripperCalibration_IS_CATKIN_BUILT)
@@ -29,16 +29,22 @@ if (sawIntuitiveResearchKitGripperCalibration_IS_CATKIN_BUILT)
 endif ()
 
 # saw components have been compiled within cisst, we should find them automatically
-find_package (sawRobotIO1394 2.4.0 REQUIRED)
+find_package (sawRobotIO1394 2.5.0 REQUIRED)
+find_package (sawIntuitiveResearchKit 2.5.0 REQUIRED)
 
 if (sawRobotIO1394_FOUND)
 
   # saw components configuration
-  include_directories (${sawRobotIO1394_INCLUDE_DIR})
+  include_directories (${sawRobotIO1394_INCLUDE_DIR}
+                       ${sawIntuitiveResearchKit_INCLUDE_DIR}
+                       "${sawIntuitiveResearchKit_DIR}/include")
   link_directories (${sawRobotIO1394_LIBRARY_DIR})
 
   # main program used to calibrate the MTM gripper
   add_executable (sawIntuitiveResearchKitGripperCalibration GripperCalibration.cpp)
+  if (TARGET sawIntuitiveResearchKitFullRevision)
+    add_dependencies (sawIntuitiveResearchKitGripperCalibration sawIntuitiveResearchKitFullRevision)
+  endif ()
   set_target_properties (sawIntuitiveResearchKitGripperCalibration PROPERTIES
                          COMPONENT sawIntuitiveResearchKit-Applications
                          FOLDER "sawIntuitiveResearchKit")

@@ -10,7 +10,7 @@
 # --- end cisst license ---
 
 cmake_minimum_required (VERSION 3.16)
-project (dvrk_arms_from_ros VERSION 2.4.0)
+project (dvrk_arms_from_ros VERSION 2.5.0)
 
 
 # first test for ROS1
@@ -58,7 +58,7 @@ set (REQUIRED_CISST_LIBRARIES
   cisstParameterTypes
   )
 
-find_package (cisst 1.3.1 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.5.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 # set paths
 cisst_set_output_path ()

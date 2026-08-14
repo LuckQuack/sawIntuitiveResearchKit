@@ -10,7 +10,26 @@
 # --- end cisst license ---
 
 cmake_minimum_required (VERSION 3.16)
-project (sawIntuitiveResearchKit VERSION 2.4.0)
+project (sawIntuitiveResearchKit VERSION 2.5.0)
+
+# Generate a full version string containing the semantic version and Git revision.
+find_package (Git QUIET)
+set (SAW_INTUITIVE_RESEARCH_KIT_REVISION_HEADER_SRC
+     "${sawIntuitiveResearchKit_SOURCE_DIR}/code/sawIntuitiveResearchKitFullRevision.h.in")
+set (SAW_INTUITIVE_RESEARCH_KIT_REVISION_HEADER
+     "${sawIntuitiveResearchKit_BINARY_DIR}/include/sawIntuitiveResearchKit/sawIntuitiveResearchKitFullRevision.h")
+configure_file ("${sawIntuitiveResearchKit_SOURCE_DIR}/../../cmake/sawIntuitiveResearchKitGenerateRevision.cmake.in"
+                "${sawIntuitiveResearchKit_BINARY_DIR}/sawIntuitiveResearchKitGenerateRevision.cmake"
+                @ONLY)
+add_custom_target (sawIntuitiveResearchKitFullRevision ALL
+                   COMMAND ${CMAKE_COMMAND} -P "${sawIntuitiveResearchKit_BINARY_DIR}/sawIntuitiveResearchKitGenerateRevision.cmake"
+                   COMMENT "Generating ${SAW_INTUITIVE_RESEARCH_KIT_REVISION_HEADER} from Git revision"
+                   SOURCES "${SAW_INTUITIVE_RESEARCH_KIT_REVISION_HEADER_SRC}"
+                           "${sawIntuitiveResearchKit_BINARY_DIR}/sawIntuitiveResearchKitGenerateRevision.cmake")
+set_source_files_properties ("${SAW_INTUITIVE_RESEARCH_KIT_REVISION_HEADER}" GENERATED)
+install (FILES "${SAW_INTUITIVE_RESEARCH_KIT_REVISION_HEADER}"
+         DESTINATION include/sawIntuitiveResearchKit
+         COMPONENT sawIntuitiveResearchKit)
 
 set (REQUIRED_CISST_LIBRARIES
   cisstCommon
@@ -22,7 +41,7 @@ set (REQUIRED_CISST_LIBRARIES
   cisstRobot
   cisstNumerical)
 
-find_package (cisst 1.4.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
+find_package (cisst 1.5.0 REQUIRED COMPONENTS ${REQUIRED_CISST_LIBRARIES})
 
 # make sure CISST_USE_SI_UNITS is defined and set to 1
 if (NOT DEFINED CISST_USE_SI_UNITS)
@@ -33,8 +52,8 @@ if (NOT CISST_USE_SI_UNITS)
 endif ()
 
 # saw components have been compiled within cisst, we should find them automatically
-find_package (sawTextToSpeech         1.4.1 REQUIRED)
-find_package (sawRobotIO1394          2.4.0 REQUIRED)
+find_package (sawTextToSpeech         1.5.0 REQUIRED)
+find_package (sawRobotIO1394          2.5.0 REQUIRED)
 find_package (sawControllers          2.3.0 REQUIRED)
 
 if (sawRobotIO1394_FOUND AND sawControllers_FOUND)
@@ -211,6 +230,7 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND)
                ${HEADER_FILES} ${SOURCE_FILES}
                ${sawIntuitiveResearchKit_CISST_DG_SRCS}
                ${sawIntuitiveResearchKit_CISST_DG_HDRS})
+  add_dependencies (sawIntuitiveResearchKit sawIntuitiveResearchKitFullRevision)
   target_link_libraries (sawIntuitiveResearchKit PUBLIC
     ${cisst_LIBRARIES}
   )
@@ -244,4 +264,3 @@ if (sawRobotIO1394_FOUND AND sawControllers_FOUND)
            ARCHIVE DESTINATION lib)
 
 endif (sawRobotIO1394_FOUND AND sawControllers_FOUND)
-
