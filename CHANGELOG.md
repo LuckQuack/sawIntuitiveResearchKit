@@ -1,8 +1,8 @@
 Change log
 ==========
 
-2.5.0 (TBD)
-===========
+2.5.0 (2026-08-22)
+==================
 
 * New features:
   * ECM teleoperation supports an endoscope-roll offset and alternate master arms, including Haply devices.
