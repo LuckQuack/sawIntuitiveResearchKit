@@ -15,6 +15,15 @@ import pyudev
 import subprocess
 import time
 import datetime
+import signal
+
+
+def handle_sigint(_signum, _frame):
+    print('\nExiting.')
+    raise SystemExit(0)
+
+
+signal.signal(signal.SIGINT, handle_sigint)
 
 zip_filename = 'fpgav3-micro-sd.zip'
 zip_url = 'https://github.com/jhu-cisst/mechatronics-embedded/releases/latest/download/' + zip_filename
